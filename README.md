@@ -34,7 +34,7 @@ You can see an available demo for oralstats.view in this
 [link](https://adrin-cabedo.shinyapps.io/padrezorro/). This demo allows
 the exploration of three data frames (phonemes, words and intonational
 phrases); it is focused on the analysis of the youtube Pico de Oro/Papá
-Zorro, explained below on Section 8.
+Zorro, explained below on Section Mods.
 
 # Funding
 
