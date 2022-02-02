@@ -1,5 +1,7 @@
 # Oralstats
 
+"Get to the chopper!" (Major Alan "Dutch" Schaefer character, Predator movie [1987])
+
 # Description
 
 Oralstats is a data exploratory tool developed to achieve two main
@@ -222,11 +224,12 @@ Pico de Oro/Padre Zorro*,* are still being developed.
     <https://adrin-cabedo.shinyapps.io/padrezorro/>
 
 5.  *Fonocortesía*. This was a funded project ended in 2013 and
-    supervised by full professor Antonio Hidalgo Navarro. The data is
-    still in process to be transformed and uploaded to Oralstats.view.
-    By now, you can access this data dynamically at
-    [\<http://fonocortesia.es\>](http://fonocortesia.es){.uri} and also
-    download it.
+    supervised by full professor Antonio Hidalgo Navarro.
+    You can access this data dynamically at
+    [\<http://fonocortesia.es\>](http://fonocortesia.es) and also
+    <https://adrin-cabedo.shinyapps.io/fonocortesia/>
+
+6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: <https://adrin-cabedo.shinyapps.io/oralstats-aroca> It includes 105 Spanish conversations from Ameresco corpus <www.corpusameresco.com>.
 
 # Credits
 
