@@ -1,0 +1,433 @@
+---
+title: "Oralstats. Aroca"
+output:
+  html_document:
+      highlight: tango
+      number_sections: yes
+      theme: yeti
+      toc: yes
+      toc_depth: 3
+      # toc_float:
+      #   collapsed: yes
+      #   smooth_scroll: yes
+# output: rmdformats::material
+runtime: shiny
+---
+
+```{r setup, include=FALSE, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(DT)
+library(shiny)
+library(plotly)
+library(fst)
+library(tidyverse)
+library(shinyWidgets)
+library(kableExtra)
+library(audio)
+
+plantilla <- read_fst("fst/plantilla.fst")
+prosody <- read_fst("fst/prosodyameresco.fst")
+palabras <- read_fst("fst/palabras_review.fst")
+palabras <- palabras%>%ungroup()
+
+# palabras <- palabras%>% mutate(ciudad = case_when(
+#   
+#   grepl("HAV",conversacion) ~ "La Havana",
+#   grepl("MEX",conversacion) ~ "Ciudad de México",
+#   grepl("MTY",conversacion) ~ "Monterrey",
+#   grepl("TCO",conversacion) ~ "Temuco",
+#   grepl("TGU",conversacion) ~ "Tegucigalpa",
+#   grepl("LPA",conversacion) ~ "Las Palmas",
+#    grepl("PTY",conversacion) ~ "Ciudad de Panamá",
+#    grepl("BAQ",conversacion) ~ "Barranquilla",
+#     grepl("MDE",conversacion) ~ "Medellín",
+#   grepl("IQQ",conversacion) ~ "Iquique",
+#    grepl("TUC",conversacion) ~ "Tucumán",
+#   grepl("QRO",conversacion) ~ "Quéretaro",
+#   grepl("VVU",conversacion) ~ "La Paz"
+#   
+# ))
+# 
+# plantilla <- plantilla%>% mutate(ciudad = case_when(
+#   
+#   grepl("HAV",conversacion) ~ "La Havana",
+#   grepl("MEX",conversacion) ~ "Ciudad de México",
+#   grepl("MTY",conversacion) ~ "Monterrey",
+#   grepl("TCO",conversacion) ~ "Temuco",
+#   grepl("TGU",conversacion) ~ "Tegucigalpa",
+#    grepl("PTY",conversacion) ~ "Ciudad de Panamá",
+#    grepl("BAQ",conversacion) ~ "Barranquilla",
+#   grepl("IQQ",conversacion) ~ "Iquique",
+#    grepl("TUC",conversacion) ~ "Tucumán",
+#   grepl("QRO",conversacion) ~ "Quéretaro",
+#   grepl("VVU",conversacion) ~ "La Paz"
+#   
+# ))
+
+```
+
+# Exploración básica del corpus Ameresco {.tabset .tabset-fade}
+
+[Oralstats](https://github.com/acabedo/oralstats){target="_blank"} (Cabedo 2021) / Aroca Mod (Cabedo y Carcelén 2021). Versión Lite (beta).
+
+**Advertencia**: [sobre el etiquetado morfosintáctico](https://esvaratenuacion.es/advertencia-etiquetado){target="_blank"}.
+
+## Buscar {.tabset .tabset-fade}
+
+```{r dt, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+
+tags$table(
+  
+  tags$tr(
+tags$td(textInput("textsearch","Escriba una palabra (obligatorio)", placeholder = "Ej.: una")),
+tags$td(textInput("textsearch1","(opcional) Escriba 1 palabra a la derecha", placeholder = "Ej.: manzana")),
+tags$td(textInput("textsearch2","(opcional) Escriba 2 palabras a la derecha", placeholder = "Ej.: roja"))),
+
+tags$tr(
+tags$td(pickerInput("ciudadselect","Selecciona ciudad (obligatorio)", choices =  unique(palabras$ciudad),options = list(`actions-box` = TRUE), multiple = TRUE)),
+        tags$td(pickerInput("regexselect","REGEX  ",width = "70%" ,selected = "no",choices = c("sí","no"))))
+
+# tags$td(selectizeInput("sexoselect","Selecciona sexo (obligatorio)", choices =  unique(palabras$sexo),multiple = TRUE)),
+# tags$td(selectizeInput("edadselect","Selecciona edad (obligatorio)", choices =  unique(palabras$edad),multiple = TRUE))
+)
+
+
+
+busqueda <- reactive({
+  
+  if(input$regexselect == "no"){
+  
+  if(input$textsearch ==""&input$textsearch1 ==""&input$textsearch2 ==""&is.null(input$ciudadselect)) {
+  empty_df = palabras[FALSE,]
+  empty_df%>%select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)
+} else if (input$textsearch !=""&input$textsearch1 ==""&input$textsearch2 ==""& !is.null(input$ciudadselect))
+  
+ {
+palabras%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((input$textsearch==token | input$textsearch==upos), ciudad %in% !!input$ciudadselect)
+}else if (input$textsearch !=""&input$textsearch1 !=""&input$textsearch2 ==""& !is.null(input$ciudadselect))
+ {
+palabras%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((!!input$textsearch==token | input$textsearch==upos),(!!input$textsearch1==lead(token,1)| !!input$textsearch1==lead(upos,1)),idge==lead(idge,1), ciudad %in% !!input$ciudadselect)
+} 
+  else if (input$textsearch !=""&input$textsearch1 !=""&input$textsearch2 !=""& !is.null(input$ciudadselect))
+ {
+palabras%>%mutate(upos = as.factor(upos))%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((!!input$textsearch==token | input$textsearch==upos),(!!input$textsearch1==lead(token,1)|!!input$textsearch1==lead(upos,1)),idge==lead(idge,1),(!!input$textsearch2==lead(token,2) | !!input$textsearch1==lead(upos,2)),idge==lead(idge,2), ciudad %in% !!input$ciudadselect)
+  } 
+    else if (input$textsearch ==""&input$textsearch1 !=""&input$textsearch2 ==""& !is.null(input$ciudadselect))
+ {
+palabras%>%mutate(upos = as.factor(upos))%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((!!input$textsearch1==lead(token,1) | !!input$textsearch1==lead(upos,1)),idge==lead(idge,1), ciudad %in% !!input$ciudadselect)
+  }
+    else if (input$textsearch ==""&input$textsearch1 ==""&input$textsearch2 !=""& !is.null(input$ciudadselect))
+ {
+palabras%>%mutate(upos = as.factor(upos))%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((!!input$textsearch2==lead(token,2) | !!input$textsearch2==lead(upos,2)),idge==lead(idge,2), ciudad %in% !!input$ciudadselect)
+    }
+    else if (input$textsearch ==""&input$textsearch1 !=""&input$textsearch2 !=""& !is.null(input$ciudadselect))
+ {
+palabras%>%mutate(upos = as.factor(upos))%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((!!input$textsearch1==lead(token,1) | !!input$textsearch1==lead(upos,1)),(!!input$textsearch2==lead(token,2) | !!input$textsearch2==lead(upos,2)),idge==lead(idge,1),idge==lead(idge,2), ciudad %in% !!input$ciudadselect)
+  }
+  else {empty_df = palabras[FALSE,]
+  empty_df%>%select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)}
+  }
+  else{
+    
+    
+    if(input$textsearch ==""&input$textsearch1 ==""&input$textsearch2 ==""&is.null(input$ciudadselect)) {
+  empty_df = palabras[FALSE,]
+  empty_df%>%select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)
+} else if (input$textsearch !=""&input$textsearch1 ==""&input$textsearch2 ==""& !is.null(input$ciudadselect))
+  
+ {
+palabras%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter(grepl(!!input$textsearch,token)|grepl(!!input$textsearch,upos), ciudad %in% !!input$ciudadselect)
+}else if (input$textsearch !=""&input$textsearch1 !=""&input$textsearch2 ==""& !is.null(input$ciudadselect))
+ {
+palabras%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter((grepl(!!input$textsearch,token)|grepl(!!input$textsearch,upos)),(grepl(!!input$textsearch1,lead(token,1))|grepl(!!input$textsearch1,lead(upos,1))),idge==lead(idge,1), ciudad %in% !!input$ciudadselect)
+} 
+  else if (input$textsearch !=""&input$textsearch1 !=""&input$textsearch2 !=""& !is.null(input$ciudadselect))
+ {
+palabras%>%mutate(upos = as.factor(upos))%>% select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)%>%filter(grepl(!!input$textsearch,token)|grepl(!!input$textsearch,upos),grepl(!!input$textsearch1,lead(token,1))|grepl(!!input$textsearch1,lead(upos,1)),idge==lead(idge,1),grepl(!!input$textsearch2,lead(token,2)) | grepl(!!input$textsearch2,lead(upos,2)),idge==lead(idge,2), ciudad %in% !!input$ciudadselect)
+  } 
+  else {empty_df = palabras[FALSE,]
+  empty_df%>%select(token,upos,conversacion,idge,tmin,tmax,idge,anotacion1,idspk,ciudad,sexo,edad_tag,nivel,corpus_completo,!!!input$eligevar)}
+    
+  }
+
+  
+ })
+
+tags$hr(style="height:20px;")
+
+
+  # palabras%>%group_by(!!!input$varagrup)%>%summarise(cantidad_total=n()))
+
+```
+
+### Estadísticas
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+varSelectInput("varagrup","Selecciona variable para agrupar (opcional)",data = palabras%>%select(conversacion,idspk,sexo,edad_tag,nivel,token,ciudad,corpus_completo),multiple=TRUE)
+
+statisticsrel <- reactive({
+  p<- busqueda()%>%group_by(!!!input$varagrup)%>%summarise(hablantes = n_distinct(idspk),hablantes_corpus = NA, frecuencia=n(),total_corpus=NA)
+ t <-  palabras%>%group_by(!!!input$varagrup)%>%summarise(hablantes = NA,hablantes_corpus = n_distinct(idspk),frecuencia=NA,total_corpus=n())
+ 
+
+ 
+d <- rbind(p,t)
+d %>% arrange(!!!input$varagrup)%>%mutate(hablantes_corpus=ifelse(frecuencia!=""&lead(total_corpus,1)!="",lead(hablantes_corpus,1),hablantes_corpus), total_corpus=ifelse(frecuencia!=""&lead(total_corpus,1)!="",lead(total_corpus,1),total_corpus), frec_rel = round((frecuencia/total_corpus)*1000000,2))%>%filter(!is.na(frecuencia))
+})
+
+# renderDT(busqueda()%>%group_by(!!!input$varagrup)%>%summarise(cantidad=n()))
+
+
+renderDT(
+  datatable(statisticsrel()))
+```
+
+<!-- ### Añadir variables -->
+
+<!-- ```{r select, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE} -->
+
+<!-- ``` -->
+
+<!-- ### Curva melódica -->
+
+<hr/>
+
+### Concordancias {.tabset .tabset-fade}
+
+```{r concordances, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+
+# shiny::actionButton("concordance","Grupos entonativos")
+
+varSelectInput("eligevar","Seleccione variables que desee añadir",data=palabras%>%select(sexo,edad_tag,nivel,upos,lemma,orden),multiple=TRUE)
+
+
+DT::dataTableOutput('dt1')
+output$dt1 = DT::renderDT(datatable(busqueda()%>%mutate(sexo = as.factor(sexo), edad_tag = as.factor(edad_tag), nivel = as.factor(nivel))%>%select(-conversacion,-tmax,-idge,-sexo,-edad_tag,-nivel,-corpus_completo,-upos,!!!input$eligevar),extensions=c("Buttons","ColReorder"), filter="top",selection = 'single',options = list(colReorder = TRUE,scrollX = TRUE,dom = 'Blfrtip',
+  buttons = c('copy', 'csv', 'excel'),scrollY = "250px",
+    searchHighlight = TRUE,pageLength = 15,
+  lengthMenu = c(5, 10, 15, 20))))
+
+
+
+```
+
+```{r curva, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+s <-reactive({
+  s <- input$dt1_rows_selected
+  
+  to <- busqueda()[s,"idge"]
+  
+  palabras <- busqueda()%>%filter(idge%in%to)%>%group_by(idge)%>%summarise(tmin = max(tmin, na.rm=TRUE),tmax=max(tmax,na.rm = TRUE), conversacion= max(conversacion,na.rm=TRUE), cantidad=n())
+  
+  })
+
+
+ppp <- eventReactive(input$dt1_rows_selected,{
+
+  d <- s()
+  t <- prosody %>%filter(Time_ms > d$tmin & Time_ms < d$tmax &filename == d$conversacion)
+  
+  p <- ggplot(t, aes(x=Time_ms,y=pitchst)) +
+  # geom_line(color="blue")+
+  # geom_point(color="blue")
+  # geom_line( size=1,color="white") 
+  geom_point(color="blue")
+ 
+  
+  p}
+)
+
+
+
+escucha <- eventReactive(input$escucha, {
+   # p <- s()%>%mutate(tmin= tmin-50, tmax = tmax+250)
+  # paste("http://www.esvaratenuacion.es/sites/default/files/conversaciones/",p$conversacion,".mp3#t=",p$tmin/1000,",",p$tmax/1000,sep="")
+   paste("http://www.esvaratenuacion.es/sites/default/files/grupos/",s()$idge,".mp3",sep="")
+   })
+
+# renderUI(
+# tags$div(style="display: none;",
+#          
+# tags$audio(src = escucha(), type = "audio/mp3",autoplay = TRUE, controls = NA)
+# ))
+
+
+```
+
+#### Curva melódica
+
+Debes seleccionar una fila en la sección de concordancias para observar la curva melódica.
+
+```{r plotcurva, message=FALSE,echo=FALSE,warning=FALSE}
+
+actionButton("escucha","Pulsa para generar audio y curva melódica")
+# renderPrint(escucha())
+
+# renderUI(
+# tags$audio(src = escucha(), type = "audio/mp3",autoplay = NA, controls = NA))
+
+pp <- eventReactive(input$escucha,{p <- ppp()})
+
+renderPlotly(pp())
+renderUI(tags$audio(src=escucha(),type = "audio/mp3",autoplay = NA, controls = NA))
+# renderUI(tags$audio(src="http://www.esvaratenuacion.es/sites/default/files/grupos/TCO_001_03_19_B_541198_545421.mp3",type = "audio/mp3",autoplay = TRUE, controls = NA))
+
+
+
+
+```
+
+#### Conversación completa
+
+Debes seleccionar una fila en la sección de concordancias para observar conversación completa. De esta manera puede seleccionarse el contexto deseado ampliando o reduciendo el tiempo de inicio.
+
+```{r contexto, include=TRUE, echo=FALSE, warning=FALSE, message=FALSE}
+
+s1 <-reactive({
+  s <- input$dt1_rows_selected
+  
+  to <- busqueda()[s,"conversacion"]
+  
+  palabras <- plantilla%>%filter(conversacion%in%to)%>%select(idge,tmin,tmax,idspk,anotacion1)
+  
+  })
+
+
+
+# renderDT(datatable( s1(), extensions = 'Buttons',filter="bottom",selection = 'single',options = list(
+#   dom = 'Bfrtip',buttons = 
+#       list('copy', 'print', list(
+#         extend = 'collection',
+#         buttons = c('csv', 'excel', 'pdf'),
+#         text = 'Download'
+#       )),
+#   searchHighlight = TRUE,pageLength = 15,lengthMenu = c(5, 10, 15, 20)
+#   )))
+
+DT::dataTableOutput('dt3')
+output$dt3 = DT::renderDT(datatable(s1()%>%select(-idge), filter="top",selection = 'single',extensions="Buttons",options = list(
+  
+  dom = 'Blfrtip',
+  buttons = c('copy', 'csv', 'excel'),
+  searchHighlight = TRUE,pageLength = 10,
+  lengthMenu = c(5, 10, 15, 20,50))))
+
+
+s2 <-reactive({
+  s <- input$dt3_rows_selected
+  
+  to <- s1()[s,"idge"]
+  
+palabras<-plantilla%>% filter(idge%in%to)%>%group_by(idge)%>%summarise(tmin = max(tmin,na.rm = TRUE),tmax=max(tmax,na.rm = TRUE), conversacion= max(conversacion,na.rm = TRUE))  
+  })
+
+escucha1 <- reactive({
+  
+  # p <- s2()%>%mutate(tmin= tmin-50, tmax = tmax+250)
+  # tags$audio(src = paste("http://www.esvaratenuacion.es/sites/default/files/conversaciones/",p$conversacion,".mp3#t=",p$tmin/1000,",",p$tmax/1000,sep=""),type = "audio/mp3",autoplay = NA, controls = NA)
+  tags$audio(src = paste("http://www.esvaratenuacion.es/sites/default/files/grupos/",s2()$idge,".mp3",sep=""),type = "audio/mp3",autoplay = NA, controls = NA)
+  })
+
+renderUI(tags$audio(src = paste("http://www.esvaratenuacion.es/sites/default/files/grupos/",s2()$idge,".mp3",sep=""),type = "audio/mp3",autoplay = NA, controls = NA))
+
+# renderUI(
+#   
+#   tags$div(style="display: none;",
+#   escucha1()))
+
+
+```
+
+# Más info
+
+Subvencionado actualmente por el **Proyecto ESPRINT**. Estrategias pragmático-retóricas en la interacción conversacional conflictiva entre íntimos y conocidos: intensificación, atenuación y gestión interaccional. Ministerio de Ciencia e Innovación (PID2020-114895GB-100). Directoras: Marta Albelda / Maria Estellés (Departamento de Filología Española, UV)
+
++---------------------------------------------+--------------------------------+--------------------------------+
+| Antonio Briz Gómez\                         | Marta Albelda Marco\           | Maria Estellés Arguedas\       |
+| (director)                                  | (coordinadora académica)       | (coodinadora académica)        |
++:===========================================:+:==============================:+:==============================:+
+| ![](images/paste-B2070352.png){width="221"} | ![](images/paste-8BC1F75D.png) | ![](images/paste-E0D82077.png) |
++---------------------------------------------+--------------------------------+--------------------------------+
+
++---------------------------------------------+----------------------------------------------+
+| Adrián Cabedo Nebot\                        | Andrea Carcelén Guerrero\                    |
+| (creador de Oralstats)                      | (adaptación de Oralstats al corpus Ameresco) |
++:===========================================:+:============================================:+
+| ![](images/paste-C723525C.png){width="220"} | ![](images/paste-2A446FCA.png)               |
++---------------------------------------------+----------------------------------------------+
+
+# Cómo citar
+
+El corpus debe ser citado por Albelda, M. y Estellés, M. (coords.): Corpus Ameresco, Universitat de València, ISSN: 2659-8337, www.corpusameresco.com. Asimismo, en cada zona geográfica concreta, deberá hacerse mención a la autoría de los investigadores responsables de cada corpus:
+
+**ARGENTINA**
+
+**ARGENTINA-Tucumán**. Corpus Pra.DO. Código de denominación: TUC Coordinadora: Silvina Douglas de Sirgo (Universidad Nacional de Tucumán). Grupo de investigación: Joaquín Vuoto, Andrea Gallo, Cecilia Costas y Estefanía Díaz.
+
+Citación del corpus: Douglas de Sirgo, Silvina (en línea): "Corpus de conversaciones Ameresco-Tucumán", en Albelda y Estellés (coords.): Corpus Ameresco, www.corpusameresco.com, Universitat de València, ISSN: 2659-8337.
+
+**ARGENTINA-Buenos Aires**. Coordinadora: Claudia Borzi (Universidad de Buenos Aires). Código de denominación: BUE.
+
+Citación del corpus: Borzi, Claudia (en línea): "Corpus de conversaciones Ameresco-Buenos Aires", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**COLOMBIA**
+
+**COLOMBIA-Barranquilla**. Coordinadora: Yolanda Rodríguez Cadena (Universidad del Atlántico) Código de denominación: BAQ. Grupo de investigación: Yasmina Divina Torres Fontalvo
+
+Citación del corpus: Rodríguez Cadena, Yolanda (en línea): "Corpus de conversaciones Ameresco-Barranquilla", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**COLOMBIA-Medellín**. Coordinadores: Miyahara Tetsuji (Jang, Ji Son) y Ana García Tesoro (Universidad de Antioquia). Código de denominación: MDE
+
+Citación del corpus: Jang, Ji Son y García Tesoro, Ana (en línea): "Corpus de conversaciones Ameresco-Medellín", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**CUBA**
+
+**CUBA-La Habana**. Coordinadora: Ana María González Mafud (Universidad de La Habana) Código de denominación: HAV. Grupo de investigación: Yohana Beatriz Martínez Abreu, Amanda de la Caridad García Roche y Claudia Rodríguez Martínez.
+
+Citación del corpus: González Mafud, Ana María (en línea): "Corpus de conversaciones Ameresco-La Habana", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**CHILE**
+
+**CHILE-Iquique**. Iquique Corpus of Spontaneous Conversations of Chilean Spanish in Iquique (CCEEC-I)
+
+Coordinadoras: Renata Enghels y Kris Helincks (Universidad de Gante, Bélgica) Código de denominación: IQQ
+
+Financiado por BOF (Bijzonder Onderzoeksfonds), Universiteit Gent, 01D27711FWO (Fonds voor Wetenschappelijk Onderzoek Vlaanderen)
+
+**CHILE-Santiago de Chile**. Coordinadora: Silvana Guerrero y Javier González Riffo. Código de denominación: SCL.
+
+Citación del corpus: Guerrero, Silvana y González, Javier (en línea): "Corpus de conversaciones Ameresco-Santiago de Chile", en Albelda y Estellés (coords.): Corpus Ameresco,[www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**CHILE-Temuco.** Coordinadora: Lisette Andrea Mondaca Becerra (Universitat de València). Código de denominación: TCO
+
+Citación del corpus: Mondaca Becerra, Lissette Andrea (en línea): "Corpus de conversaciones Ameresco-Temuco", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**HONDURAS**
+
+**HONDURAS-Tegucigalpa.** Coordinador: Danny Murillo (Universitat de València). Código de denominación: TCO
+
+Citación del corpus: Murillo, Danny (en línea): "Corpus de conversaciones Ameresco-Temuco", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337. 
+
+**MÉXICO**
+
+**MÉXICO-Ciudad de México**. Coordinadores: Katarina Pater, Wiltrud Mihatsch y Ricardo Maldonado. Código de denominación: MEX
+
+Citación del corpus: Pater, Katarina (en línea): "Corpus de conversaciones Ameresco-Ciudad de México", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**MÉXICO-Ciudad de México** (2019). Coordinador: Ricardo Maldonado Soto (Universidad Nacional Autónoma de México). Código de denominación: MEX. Grupo de investigación: Fernanda Pérez y Rocío Cerbón.
+
+Maldonado Soto, Ricardo (en línea): "Corpus de conversaciones Ameresco-Ciudad de México", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**MÉXICO-Monterrey**. Coordinadora: María Eugenia Flores Treviño. Código de denominación: MTY. Grupo de investigación: Armando González Salinas y Marysol Rocha
+
+Citación del corpus: Flores Treviño, María Eugenia (en línea): "Corpus de conversaciones Ameresco-Monterrey", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+**PANAMÁ**
+
+**PANAMÁ-Ciudad de Panamá.** Coordinadora: Fulvia Morales de Castillo (Universidad de Panamá). Código de denominación: PTY.
+
+Citación del corpus: Morales de Castillo, Fulvia (en línea): "Corpus de conversaciones Ameresco-Panamá", en Albelda y Estellés (coords.): Corpus Ameresco, [www.corpusameresco.com](http://www.corpusameresco.com/), Universitat de València, ISSN: 2659-8337.
+
+# Tutorial
+
+Puede encontrar un tutorial en el siguiente [enlace](https://esvaratenuacion.es/oralstats_tutorial){target="_blank"}.
