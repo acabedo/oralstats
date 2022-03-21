@@ -2,6 +2,8 @@
 
 "Get to the chopper!" (Major Alan "Dutch" Schaefer character, Predator movie [1987])
 
+🔴**New version**🔴 (21/03/2022)! Version 1.1 (beta). Shiny complete environment.
+
 # Description
 
 Oralstats is a data exploratory tool developed to achieve two main
@@ -18,8 +20,11 @@ scientific project to get the position currently held.
 
 You can use the following citation in order to refer this tool:
 
-Cabedo, A. (2021). Oralstats. A tool to visualize and explore
-transcriptions and phonic data. <https://github.com/acabedo/oralstats>
+- Cabedo, A. (2021). Oralstats. A tool to visualize and explore
+transcriptions and phonic data. Version beta 1.0 <https://github.com/acabedo/oralstats>
+
+- Cabedo, A. (2022). Oralstats. A tool to visualize and explore
+transcriptions and phonic data. Version beta 1.1 <https://github.com/acabedo/oralstats>
 
 # Docs
 
@@ -27,16 +32,12 @@ The docs section is **still under development**. For now, if you have
 some problem or question about Oralstats, you can send me an email
 ([adrian.cabedo\@uv.es](adrian.cabedo@uv.es)). Although the viewing
 module (developed with Shiny) is pretty straightforward, the creation
-module it is highly customizable and it could be a little overwhelming
-at the beginning.
+module, as it is highly customizable, it could be a little overwhelming at the beginning.
 
 # Demo
 
-You can see an available demo for oralstats.view in this
-[link](https://adrin-cabedo.shinyapps.io/padrezorro/). This demo allows
-the exploration of three data frames (phonemes, words and intonational
-phrases); it is focused on the analysis of the youtube Pico de Oro/Papá
-Zorro, explained below on Section Mods.
+You can see an available demo for oralstats.view at this
+[link](https://adrin-cabedo.shinyapps.io/padrezorro/)(old version) or at [link](https://adrin-cabedo.shinyapps.io/fonocortesia2/) (new version). These demos allow the exploration of intonational phrases for two of the mods explained below: first one, *Padre Zorro among genres*; second one, *Fonocortesia*
 
 # Funding
 
@@ -85,8 +86,7 @@ Required: Rstudio 1.4.1717 or later
 ### For oralstats.view
 
 DBI; RSQLite; shinybusy; psych; shiny; RColorBrewer; tidyverse;
-shinyWidgets; tidytext; readr; heatmaply; RLumShiny; shinybusy; party;
-gplots; plot;Factominer
+shinyWidgets; tidytext; readr; heatmaply; RLumShiny; shinybusy; party; gplots; plot;Factominer
 
 ### For oralstats.creation
 
@@ -113,7 +113,7 @@ For oralstats.view you can take any tabbed txt file but it is also
 recommendable to have a sqlite file with all the pitch and intensity
 values for every filename (this can be the id name of a media file o
 simply the id name of an utterance). In the version uploaded as core
-version, the data frames are expected in an RDS format.
+version, the data frames are expected in an RDS or fst format.
 
 # Viewing
 
@@ -123,29 +123,65 @@ several visualization procedures (pie charts, frequency tables, timeline
 charts...). See the following figures to take a look to some of these
 features:
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.16.14.png)
+![](images/first_page.png)
 
-Figure 1. Brief summary of data.
+Figure 1. Welcome page.
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.16.43.png)
+![](images/create.png)
 
-Figure 2. Concordances list.
+Figure 2. Basic creation page (not all functions available).
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.17.22.png)
+![](images/filter.png)
 
-Figure 3. Heatmap.
+Figure 3. Filter.
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.17.50.png)
+![](images/descriptive_by_group.png)
 
-Figure 4. Decision tree.
+Figure 4. Description by group.
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.18.13.png)
+![](images/overall_description.png)
 
-Figure 5. Pitch and intensity curves.
+Figure 5. Variables descriptive statistics.
 
-![](images/Captura%20de%20pantalla%202021-11-02%20a%20las%207.18.35.png)
+![](images/chisquare.png)
 
-Figure 6. Pitch, duration and intensity presented in the same chart.
+Figure 6. Chisquare
+
+![](images/corrplot.png)
+
+Figure 7. Correlation plot
+
+![](images/decision_tree.png)
+
+Figure 8. Decision tree plot (using Rpart and Party libraries)
+
+![](images/heatmap.png)
+
+Figure 9. Heatmap
+
+![](images/ANOVA.png)
+
+Figure 10. ANOVA and boxplots
+
+![](images/PCA.png)
+
+Figure 11. PCA and Cluster analysis
+
+![](images/ngrams.png)
+
+Figure 12. N-grams
+
+![](images/pitch_raw_audio.png)
+
+Figure 13. Pitch or intensity visualization and audio 
+
+![](images/linear_prosody.png)
+
+Figure 14. Linear prosodic behaviour among file or corpus
+
+![](images/pitch_contour.png)
+
+Figure 15. Pitch contour with TOBI tagging
 
 # Notes on some tonal and semantic transformations
 
