@@ -263,7 +263,7 @@ Pico de Oro/Padre Zorro*,* are still being developed.
     supervised by full professor Antonio Hidalgo Navarro.
     You can access this data dynamically at
     [\<http://fonocortesia.es\>](http://fonocortesia.es) and also
-    <https://adrin-cabedo.shinyapps.io/fonocortesia/>
+    <https://adrin-cabedo.shinyapps.io/fonocortesia/> (old Oralstats version) or <https://adrin-cabedo.shinyapps.io/fonocortesia2/> (new Oralstats version [recommended])
 
 6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: <https://adrin-cabedo.shinyapps.io/oralstats-aroca> It includes 105 Spanish conversations from Ameresco corpus <www.corpusameresco.com>.
 
