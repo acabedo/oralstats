@@ -1,5 +1,8 @@
 # Oralstats
 
+[![DOI](https://zenodo.org/badge/408316659.svg)](https://zenodo.org/badge/latestdoi/408316659)
+
+
 "Get to the chopper!" (Major Alan "Dutch" Schaefer character, Predator movie [1987])
 
 🔴**New version**🔴 (21/03/2022)! Version 1.1 (beta). Shiny complete environment.
