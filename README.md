@@ -1,4 +1,6 @@
-# Oralstats
+![](images/oralstats.png)
+
+# Oralstats 
 
 [![DOI](https://zenodo.org/badge/408316659.svg)](https://zenodo.org/badge/latestdoi/408316659)
 
