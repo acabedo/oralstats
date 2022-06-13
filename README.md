@@ -1,6 +1,6 @@
-![](images/oralstats.png)
 
-# Oralstats 
+<img src="images/oralstats.png" alt="drawing" width="160"/> 
+
 
 [![DOI](https://zenodo.org/badge/408316659.svg)](https://zenodo.org/badge/latestdoi/408316659)
 
