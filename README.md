@@ -7,7 +7,9 @@
 
 "Get to the chopper!" (Major Alan "Dutch" Schaefer character, Predator movie [1987])
 
-🔴**New version**🔴 (21/03/2022)! Version 1.1 (beta). Shiny complete environment.
+🔴**New version**🔴 (30/06/2022)! Version 1.3 (beta). 
+
+With this new version, it is possible to create and export files directly in the same Shiny environtment. 
 
 # Description
 
@@ -29,7 +31,9 @@ You can use the following citation in order to refer this tool:
 transcriptions and phonic data. Version beta 1.0 <https://github.com/acabedo/oralstats>
 
 - Cabedo, A. (2022). Oralstats. A tool to visualize and explore
-transcriptions and phonic data. Version beta 1.1 <https://github.com/acabedo/oralstats>
+transcriptions and phonic data. Version beta 1.3 <https://github.com/acabedo/oralstats>
+
+- Cabedo Nebot, A. . (2022). Using Oralstats for prosodic characterisation of speakers in different discourse genres. Loquens, 8(1-2), e079. <https://doi.org/10.3989/loquens.2021.079>
 
 # Docs
 
@@ -100,25 +104,6 @@ tidyverse; sqldf; udpipe; xfun; readbulk; readxl
 **Note:** UDPipe will need a specific file to deal with the language
 used on data. By default, we are using Spanish file, but you can use any
 other language file covering your needs.
-
-## Files
-
-Three files are expected to oralstats.creation module:
-
-1.  Tabbed text from elan or PRAAT software export with begin, end time,
-    annotation and speaker column (optional: filename column). You can
-    see a sample
-    [here](https://www.uv.es/canea/databases/padretwitch_transcription.txt).
-2.  Headerless txt/csv from pitchtier file. You can see a sample
-    [here](https://www.uv.es/canea/databases/pzorrotwitch_pitch.txt).
-3.  Headerless txt/csv from intensity file. You can see a sample
-    [here](https://www.uv.es/canea/databases/pzorrotwitch_intensity.txt).
-
-For oralstats.view you can take any tabbed txt file but it is also
-recommendable to have a sqlite file with all the pitch and intensity
-values for every filename (this can be the id name of a media file o
-simply the id name of an utterance). In the version uploaded as core
-version, the data frames are expected in an RDS or fst format.
 
 # Viewing
 
