@@ -33,7 +33,7 @@ transcriptions and phonic data. Version beta 1.0 <https://github.com/acabedo/ora
 - Cabedo, A. (2022). Oralstats. A tool to visualize and explore
 transcriptions and phonic data. Version beta 1.3 <https://github.com/acabedo/oralstats>
 
-- Cabedo Nebot, A. . (2022). Using Oralstats for prosodic characterisation of speakers in different discourse genres. Loquens, 8(1-2), e079. <https://doi.org/10.3989/loquens.2021.079>
+- Cabedo Nebot, A. (2022). Using Oralstats for prosodic characterisation of speakers in different discourse genres. Loquens, 8(1-2), e079. <https://doi.org/10.3989/loquens.2021.079>
 
 # Docs
 
