@@ -45,8 +45,7 @@ module, as it is highly customizable, it could be a little overwhelming at the b
 
 # Demo
 
-You can see an available demo for oralstats.view at this
-[link](https://adrin-cabedo.shinyapps.io/padrezorro/)(old version) or at [link](https://adrin-cabedo.shinyapps.io/fonocortesia2/) (new version). These demos allow the exploration of intonational phrases for two of the mods explained below: first one, *Padre Zorro among genres*; second one, *Fonocortesia*
+You can see an available demo for last version (1.3) at this [link](https://adrin-cabedo.shinyapps.io/oralstats_v_1_3/). Also, you can check other versions  for oralstats.view at this [link](https://adrin-cabedo.shinyapps.io/padrezorro/)(old version, version 1.1) or at [link](https://adrin-cabedo.shinyapps.io/fonocortesia2/) (version 1.2). These demos allow the exploration of intonational phrases for two of the mods explained below: first one, *Padre Zorro among genres*; second one, *Fonocortesia*
 
 # Funding
 
