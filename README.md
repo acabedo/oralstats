@@ -23,6 +23,10 @@ on). This tool was developed by Adrián Cabedo Nebot
 Universitat de València (Spain), and it was presented in 2019 as a
 scientific project to get the position currently held.
 
+# Brief introduction video
+
+You can check it here: https://youtu.be/SoELWc8N3zI
+
 # How to cite
 
 You can use the following citation in order to refer this tool:
@@ -254,7 +258,7 @@ Pico de Oro/Padre Zorro*,* are still being developed.
     [\<http://fonocortesia.es\>](http://fonocortesia.es) and also
     <https://adrin-cabedo.shinyapps.io/fonocortesia/> (old Oralstats version) or <https://adrin-cabedo.shinyapps.io/fonocortesia2/> (new Oralstats version [recommended])
 
-6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: <https://adrin-cabedo.shinyapps.io/oralstats-aroca> It includes 105 Spanish conversations from Ameresco corpus <www.corpusameresco.com>.
+6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: <https://adrin-cabedo.shinyapps.io/oralstats-aroca> It includes 105 Spanish conversations from Ameresco corpus <www.corpusameresco.com>. Brief introduction video: https://youtu.be/gYPI2O_Y47I
 
 # Credits
 
