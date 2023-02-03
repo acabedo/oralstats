@@ -258,7 +258,7 @@ Pico de Oro/Padre Zorro*,* are still being developed.
     [\<http://fonocortesia.es\>](http://fonocortesia.es) and also
     <https://adrin-cabedo.shinyapps.io/fonocortesia/> (old Oralstats version) or <https://adrin-cabedo.shinyapps.io/fonocortesia2/> (new Oralstats version [recommended])
 
-6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: <https://adrin-cabedo.shinyapps.io/oralstats-aroca> It includes 105 Spanish conversations from Ameresco corpus <www.corpusameresco.com>. Brief introduction video: https://youtu.be/gYPI2O_Y47I
+6.  *Aroca* (in collaboration with Andrea Carcelén Guerrero). This is a special version and simplification from Oralstats core package: adrin-cabedo.shinyapps.io/aroca_viewer/ Nowadays, it includes moren than 150 Spanish conversations from Ameresco corpus, covering 14 Latinoamerican cities <www.corpusameresco.com>. The specific page for this mod can be found at: https://github.com/acabedo/aroca
 
 # Credits
 
