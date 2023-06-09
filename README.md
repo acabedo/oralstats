@@ -39,6 +39,8 @@ transcriptions and phonic data. Version beta 1.3 <https://github.com/acabedo/ora
 
 - Cabedo Nebot, A. (2022). Using Oralstats for prosodic characterisation of speakers in different discourse genres. Loquens, 8(1-2), e079. <https://doi.org/10.3989/loquens.2021.079>
 
+- Cabedo Nebot, A. (2022). Visualizing melody with multiple acoustic and tagging values using the visualization module of the Oralstats tool. Estudios de Fonética Experimental, XXXI, 135-148. https://www.ub.edu/journalofexperimentalphonetics/pdf-articles/XXXI-10-Cabedo.pdf
+
 # Docs
 
 The docs section is **still under development**. For now, if you have
