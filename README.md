@@ -7,9 +7,16 @@
 
 "Get to the chopper!" (Major Alan "Dutch" Schaefer character, Predator movie [1987])
 
-🔴**New version**🔴 (30/06/2022)! Version 1.3 (beta). 
+🟢 **Modernized version** 🟢 — **Oralstats v1.8 · LASP (Laboratorio de Análisis de la Señal Prosódica)**
 
-With this new version, it is possible to create and export files directly in the same Shiny environtment. 
+This is a fully modernized rewrite of Oralstats. It keeps the original philosophy —explore and visualize transcribed speech joined with pitch and intensity data— but adds a renewed Bootstrap (`bslib`) interface, a Python-powered analysis pipeline (Praat/Parselmouth extraction, sentiment and acoustic-emotion tagging), lexical analysis, mixed-effects modelling (GAMM) and an automatic prosodic report generator. See the [**Oralstats v1.8 — Modernized version**](#oralstats-v18--modernized-version) section below for the full list of features and screenshots.
+
+<details>
+<summary>Previous milestone</summary>
+
+🔴 **New version** 🔴 (30/06/2022)! Version 1.3 (beta). With this version it became possible to create and export files directly in the same Shiny environment.
+
+</details>
 
 # Description
 
@@ -22,6 +29,68 @@ on). This tool was developed by Adrián Cabedo Nebot
 ([adrian.cabedo\@uv.es](adrian.cabedo@uv.es)), associate professor at
 Universitat de València (Spain), and it was presented in 2019 as a
 scientific project to get the position currently held.
+
+# Oralstats v1.8 — Modernized version
+
+The current version, **Oralstats v1.8 "LASP" (Laboratorio de Análisis de la Señal Prosódica)**, is a complete modernization of the tool. It keeps the SQL/Shiny exploratory spirit of the original but rebuilds the interface with `bslib` and delegates the heavy signal and language processing to a Python pipeline (Praat/Parselmouth, UDPipe, `pysentimiento`, emotion2vec+). Everything is organized around a single top navigation bar, and a corpus summary (files, speakers, intonational groups, phonic groups, words, vowels) is always one click away.
+
+![Oralstats v1.8 home page (LASP)](images/last_version/1_pantalla_inicial.png)
+
+## What you can do
+
+### Load and summarize a corpus
+Open already-processed corpora from local storage or process new material from scratch: TextGrid + WAV pairs are turned into the tabular text/pitch/intensity files the app expects, using the bundled Praat and Parselmouth scripts. The **Summary** view condenses the whole corpus into KPI cards and a breakdown by discourse genre, file or speaker.
+
+![Corpus summary with KPI cards and breakdown by genre/file/speaker](images/last_version/2_resumen.png)
+
+### Navigate and visualize intonation
+Browse intonational groups (GE) one by one, listen to them, and read their automatic descriptors —AMH (*análisis melódico del habla*) label and nuclear ToBI tag among them. Each group can be plotted as normalized values, raw Hz, semitones (ggplot2) or as a Praatpicture-style figure, and the projection can be customized (pitch, intensity, vocalic transition, tonal peaks, tonic marks, ToBI tags, internal A/C/T sections…).
+
+![Intonational group navigator with AMH and ToBI descriptors](images/last_version/3_navegacion.png)
+
+![Normalized melodic configuration of a group](images/last_version/4_visualizador_curvas.png)
+
+The **temporal evolution** view tracks any numeric variable (e.g. mean intensity) along the timeline, file by file and speaker by speaker.
+
+![Temporal evolution of a prosodic variable by speaker](images/last_version/5_grafico_visualizacion.png)
+
+A dedicated module detects **intonational clauses** following the *Corolario de Hidalgo Navarro* (recursion, hierarchy and declination diagnostics) and plots the F0 trajectory of every detected clause.
+
+![Intonational clause detection (Corolario de Hidalgo Navarro)](images/last_version/6_clausulas.png)
+
+### Explore the data tables
+All intonational and phonic groups are available as sortable, searchable and column-filterable tables (filename, speaker, phonic group, intonational group, onset/offset, duration, number of vowels and words, speech rate, F0 values…), ready to be inspected or exported.
+
+![Sortable, filterable table of intonational groups](images/last_version/7_tablas_unidades_grupos_entonativos.png)
+
+### Analyze the lexicon
+The **Léxico** menu offers word-frequency and lexical-diversity analysis (type/token ratio, surface form or UDPipe lemma, with optional stopword removal), bigrams and trigrams with configurable *N*, and word clouds.
+
+![Word frequency and lexical diversity (TTR)](images/last_version/8_word_frequency.png)
+
+![Bigrams and trigrams](images/last_version/9_bigramas.png)
+
+![Word cloud](images/last_version/10_wordcloud.png)
+
+### Tag sentiment and emotion
+Combine **textual sentiment** (`pysentimiento`) with **acoustic emotions** (emotion2vec+) to obtain sentiment and emotion distributions and their relationship. The same module lets you tag each intonational group manually with a perceived emotion (Ekman emojis) while looking at its melodic curve.
+
+![Sentiment and emotion analysis (pysentimiento + emotion2vec+)](images/last_version/11_sentiments_barcharts.png)
+
+![Manual emotional tagging of intonational groups](images/last_version/12_sentiments_tagging.png)
+
+To assess reliability, the **judge validation** module builds perception tasks where one or more judges listen to balanced samples of intonational groups and rate the perceived emotion and its intensity.
+
+![Judge validation module](images/last_version/13_jueces.png)
+
+### Generate prosodic reports
+A guided **report generator** turns the corpus into a full prosodic report: choose the dataset and filters (validated items only, outlier removal by percentiles/Z-scores, grouping), pick the numeric variables, and select the sections to include —descriptive statistics, boxplots with significance tests, correlation heatmaps, ANOVA/Kruskal-Wallis, linear regression, random forest, decision trees, GAMM (Generalized Additive Mixed Models), extreme examples, melodic curves by pattern, Hidalgo Navarro clauses and more— before previewing and exporting it.
+
+![Report generator — dataset and filters](images/last_version/14_generador_informes_1.png)
+
+![Report generator — report sections (incl. GAMM)](images/last_version/15_generador_informes2.png)
+
+> **Files of the modernized version** live in [`last_version/`](last_version/): the Shiny app (`app.R`), the Praat/Parselmouth extractors (`script_PRAAT_extraer_pitch_intensity_transcriptions.praat`, `extract_with_parselmouth.py`) and the sentiment/emotion analyzer (`analyze_sentiment_emotion.py`).
 
 # Brief introduction video
 
@@ -97,20 +166,37 @@ Required: Rstudio 1.4.1717 or later
 
 ## R packages
 
-### For oralstats.view
+### For Oralstats v1.8 (modernized version)
 
-DBI; RSQLite; shinybusy; psych; shiny; RColorBrewer; tidyverse;
-shinyWidgets; tidytext; readr; heatmaply; RLumShiny; shinybusy; party; gplots; plot;Factominer
+av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite;
+mgcv; plotly; RColorBrewer; seewave; shiny; shinyjs; tidyr; tuneR; udpipe
 
-### For oralstats.creation
+### Python dependencies (analysis pipeline)
 
-tidyverse; sqldf; udpipe; xfun; readbulk; readxl
+The modernized version delegates signal extraction and sentiment/emotion
+tagging to Python scripts (called from R). You will need Python 3 with:
+
+`praat-parselmouth` (pitch/intensity/text extraction), `pysentimiento`
+(textual sentiment), and `torch`, `torchaudio`, `funasr`, `soundfile`
+(emotion2vec+ acoustic emotions):
+
+```bash
+pip install praat-parselmouth pysentimiento torch torchaudio funasr soundfile
+```
+
+### For the classic modules (oralstats.view / oralstats.creation)
+
+- **view:** DBI; RSQLite; shinybusy; psych; shiny; RColorBrewer; tidyverse;
+shinyWidgets; tidytext; readr; heatmaply; RLumShiny; party; gplots; FactoMineR
+- **creation:** tidyverse; sqldf; udpipe; xfun; readbulk; readxl
 
 **Note:** UDPipe will need a specific file to deal with the language
-used on data. By default, we are using Spanish file, but you can use any
+used on data. By default, we are using a Spanish file, but you can use any
 other language file covering your needs.
 
-# Viewing
+# Viewing (classic module, v1.3)
+
+> The figures below document the **classic `oralstats.view` module (v1.3)**. For the modernized interface and its features, see the [Oralstats v1.8 — Modernized version](#oralstats-v18--modernized-version) section above.
 
 With oralstats.view you can choose from a huge variety of statistical
 methods (decision trees, discriminant analysis, ANOVAs) but also from
