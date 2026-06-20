@@ -30,9 +30,20 @@ local({
     repos <- c(CRAN = "https://packagemanager.posit.co/cran/latest")
   }
 
-  tryCatch(
-    install.packages(faltan, repos = repos),
-    error = function(e) message("Aviso: fallo instalando algún paquete de R: ",
-                                conditionMessage(e))
-  )
+  # CLAVE: NUNCA compilar desde fuente. Evita el prompt bloqueante
+  # "¿instalar desde fuentes? (Yes/no)" que en un Positron nuevo cuelga TODA la
+  # instalación (incluido shiny), y que se intente construir paquetes con Rust/C
+  # como gifski (dependencia de praatpicture). En Mac/Windows -> SOLO binarios.
+  options(install.packages.compile.from.source = "never")
+  tipo <- if (.Platform$OS.type == "windows" ||
+              identical(Sys.info()[["sysname"]], "Darwin")) "binary" else getOption("pkgType")
+
+  # Instalar UNO A UNO: si un opcional no tiene binario, se omite sin bloquear el
+  # resto (esa función queda desactivada; el núcleo se instala igual).
+  for (p in faltan) {
+    tryCatch(
+      suppressWarnings(install.packages(p, repos = repos, type = tipo)),
+      error = function(e) message("  (se omite '", p, "': ", conditionMessage(e), ")")
+    )
+  }
 })
