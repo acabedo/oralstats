@@ -1,0 +1,33 @@
+# Entorno conda COMPLETO de OralStats (núcleo + texto/emoción + transcripción).
+#
+# Vía manual de un solo comando (necesita miniforge/conda o mamba):
+#   conda env create -f environment.yml      (o:  mamba env create -f environment.yml)
+# Crea el entorno 'oralstats-env'. Después arranca la app con:  Rscript run.R
+#
+# Por qué conda: las piezas "difíciles" (torch, spacy, numba, llvmlite, librosa,
+# ffmpeg) vienen como BINARIOS de conda-forge -> no se compila nada y funciona
+# igual en Mac (arm64/Intel), Windows y Linux. Los wrappers puros van por pip.
+#
+# (run.R / setup_python.R crean este mismo entorno por niveles de forma
+#  automática; este fichero es la alternativa manual "todo de una vez".)
+name: oralstats-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # ── Binarios difíciles (conda-forge) ──────────────────────────────
+  - pytorch
+  - spacy
+  - numba
+  - llvmlite
+  - librosa
+  - ffmpeg
+  # ── Wrappers y wheels fiables (pip dentro del entorno) ─────────────
+  - pip:
+      - praat-parselmouth
+      - tgt
+      - pysentimiento
+      - funasr
+      - whisperx
+      - "pyannote.audio"

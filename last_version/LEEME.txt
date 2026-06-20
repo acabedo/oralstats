@@ -1,0 +1,33 @@
+============================================================
+  OralStats — Cómo poner en marcha la aplicación
+============================================================
+
+Necesitas instalar SOLO dos programas (instaladores normales,
+doble clic y siguiente-siguiente):
+
+  1) R          ->  https://cran.r-project.org
+  2) Positron   ->  https://positron.posit.co
+
+Después:
+
+  3) Abre Positron.
+  4) Menú  File > Open Folder...  y elige esta carpeta "Oralstats".
+  5) En el panel de archivos (izquierda), abre el fichero:  run.R
+  6) Pulsa el botón  > Source  (arriba a la derecha del editor).
+  7) ESPERA. La primera vez descarga e instala todo solo:
+     paquetes de R, Python (Miniconda) y dependencias.
+     Puede tardar varios minutos. Luego la app se abre en el navegador.
+
+NO tienes que instalar Python ni conda: lo hace todo run.R.
+NO escribas comandos. Solo abre run.R y pulsa Source.
+
+------------------------------------------------------------
+Notas:
+- Necesitas conexión a Internet la primera vez.
+- Si R pregunta "¿crear una librería personal?", responde Sí.
+- El análisis acústico (Parselmouth) ya funciona tras este paso.
+- Las funciones de Sentimiento/Emoción y Transcripción se instalan
+  cuando las uses, desde los botones de la pestaña
+  "Dependencias Python" de la app (son descargas grandes).
+- Las siguientes veces: solo abre run.R y pulsa Source; arranca rápido.
+============================================================

@@ -8,10 +8,16 @@
 # y, si faltan, su función concreta queda desactivada (degradación elegante).
 local({
   pkgs <- c(
+    # Núcleo (necesario para arrancar)
     "shiny", "bslib", "shinyjs", "ggplot2", "dplyr", "tidyr", "DT", "av", "plotly",
     "RColorBrewer", "data.table", "mgcv", "ggeffects", "ggfun", "jsonlite",
-    "seewave", "tuneR", "udpipe", "reticulate"
+    "seewave", "tuneR", "udpipe", "reticulate",
+    # Opcionales de R (CRAN, ligeros: se instalan bien como binario)
+    "readxl", "irr", "httr", "ggwordcloud", "wordcloud2", "partykit", "ggparty",
+    "randomForest", "praatpicture", "rPraat", "pagedown", "base64enc", "stopwords"
   )
+  # NOTA: 'audio.whisper' y 'whisper' (R, de GitHub) se dejan fuera a propósito:
+  # requieren compilación y no son CRAN. Si se quieren, se instalan aparte.
   faltan <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly = TRUE)]
   if (length(faltan) == 0) return(invisible())
 

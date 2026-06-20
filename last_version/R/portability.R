@@ -4,18 +4,24 @@
 ORALSTATS_VENV <- "oralstats-env"
 
 # Devuelve la ruta al intérprete Python que debe usar OralStats.
-# Prioridad: (1) venv del proyecto (reticulate),
-#            (2) ~/.virtualenvs/bert-env  (compatibilidad hacia atrás),
-#            (3) python3/python del PATH.
+# Prioridad: (1) entorno conda del proyecto, (1b) venv pip del proyecto (legacy),
+#            (2) ~/.virtualenvs/bert-env (compatibilidad), (3) python3/python del PATH.
 # Devuelve NA_character_ si no hay ninguno.
 oralstats_python <- function() {
-  # (1) venv del proyecto gestionado por reticulate
-  if (requireNamespace("reticulate", quietly = TRUE) &&
-      isTRUE(tryCatch(reticulate::virtualenv_exists(ORALSTATS_VENV),
-                      error = function(e) FALSE))) {
-    proj <- tryCatch(reticulate::virtualenv_python(ORALSTATS_VENV),
-                     error = function(e) NA_character_)
-    if (!is.na(proj) && nzchar(proj) && file.exists(proj)) return(proj)
+  if (requireNamespace("reticulate", quietly = TRUE)) {
+    # (1) entorno conda del proyecto (vía conda/mamba)
+    envs <- tryCatch(reticulate::conda_list()$name, error = function(e) character(0))
+    if (ORALSTATS_VENV %in% envs) {
+      pc <- tryCatch(reticulate::conda_python(ORALSTATS_VENV), error = function(e) NA_character_)
+      if (!is.na(pc) && nzchar(pc) && file.exists(pc)) return(pc)
+    }
+    # (1b) virtualenv pip del proyecto (compatibilidad con instalaciones antiguas)
+    if (isTRUE(tryCatch(reticulate::virtualenv_exists(ORALSTATS_VENV),
+                        error = function(e) FALSE))) {
+      proj <- tryCatch(reticulate::virtualenv_python(ORALSTATS_VENV),
+                       error = function(e) NA_character_)
+      if (!is.na(proj) && nzchar(proj) && file.exists(proj)) return(proj)
+    }
   }
 
   # (2) bert-env heredado

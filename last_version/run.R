@@ -45,7 +45,7 @@ source("R/ensure_r_packages.R")
 #    (sentimiento/emoción) y 3 (transcripción) se instalan bajo demanda desde los
 #    botones de la pestaña "Dependencias Python". Override: ORALSTATS_PY_LEVEL=text.
 source("R/portability.R")
-source("setup_python.R")
+source("R/setup_python.R")
 tryCatch(
   oralstats_bootstrap(level = Sys.getenv("ORALSTATS_PY_LEVEL", "core")),
   error = function(e) message("Aviso: bootstrap de Python falló (la app arrancará igual): ",
