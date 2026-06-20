@@ -33,26 +33,21 @@ if (!file.exists("app.R") || !file.exists("R/portability.R")) {
        "proyecto en RStudio/Positron antes de pulsar Source).")
 }
 
-# 1) Reproducir paquetes de R con renv (si está inicializado).
-#    Instalación NO transaccional: si un paquete OPCIONAL pesado (p. ej. torch,
-#    V8, soundgen) no se instala en esta máquina, NO tumba la instalación del
-#    núcleo ni el arranque de la app (esa función opcional queda desactivada).
-if (file.exists("renv/activate.R")) {
-  source("renv/activate.R")
-  if (requireNamespace("renv", quietly = TRUE)) {
-    options(renv.config.install.transactional = FALSE)
-    Sys.setenv(RENV_CONFIG_INSTALL_TRANSACTIONAL = "FALSE")
-    tryCatch(renv::restore(prompt = FALSE),
-             error = function(e) message("Aviso: renv::restore tuvo fallos; la app arrancará con lo instalado: ",
-                                         conditionMessage(e)))
-  }
-}
+# 1) Asegurar los paquetes de R necesarios: instala los que FALTEN desde CRAN
+#    actual (binarios, sin compilar). Es lo mismo que hace app.R al inicio, así
+#    que el resultado es idéntico tanto con `Rscript run.R` como abriendo app.R
+#    con "Run App" en RStudio/Positron.
+if (file.exists("renv/activate.R")) source("renv/activate.R")  # librería aislada del proyecto, si existe
+source("R/ensure_r_packages.R")
 
-# 2) Bootstrap del entorno Python del proyecto (core+text por defecto).
+# 2) Bootstrap del entorno Python del proyecto.
+#    Por defecto, arranque LIGERO (nivel 'core': parselmouth + tgt). Los niveles 2
+#    (sentimiento/emoción) y 3 (transcripción) se instalan bajo demanda desde los
+#    botones de la pestaña "Dependencias Python". Override: ORALSTATS_PY_LEVEL=text.
 source("R/portability.R")
 source("setup_python.R")
 tryCatch(
-  oralstats_bootstrap(level = Sys.getenv("ORALSTATS_PY_LEVEL", "text")),
+  oralstats_bootstrap(level = Sys.getenv("ORALSTATS_PY_LEVEL", "core")),
   error = function(e) message("Aviso: bootstrap de Python falló (la app arrancará igual): ",
                               conditionMessage(e))
 )

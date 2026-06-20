@@ -1,5 +1,9 @@
 options(shiny.autoreload = FALSE)
 
+# Asegurar los paquetes de R necesarios ANTES de cargarlos (instala los que falten
+# desde CRAN). Cubre también "Run App" desde RStudio/Positron, no solo run.R.
+if (file.exists("R/ensure_r_packages.R")) source("R/ensure_r_packages.R")
+
 ################################################################################
 # Script de Análisis Prosódico en Shiny - VERSIÓN 5.0
 # Versión: 5.0
@@ -231,7 +235,9 @@ extraer_f0_int_r_nativo <- function(wav_path,
 
   # Señal mono normalizada a [-1, 1]  (misma convención que Praat)
   x_int <- if (wav@stereo) (wav@left + wav@right) / 2L else wav@left
-  x     <- as.numeric(x_int) / (2^(bit - 1L))
+  x     <- as.numeric(x_int)
+  if (isTRUE(wav@pcm)) x <- x / (2^(bit - 1L))   # solo PCM entero; float ya viene en [-1,1]
+  x     <- x - mean(x)                            # quitar DC, como hace Praat antes de la intensidad
 
   dur_total <- length(x) / sr
 
@@ -4708,7 +4714,7 @@ h5(icon("upload"), " O importar manualmente"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
               "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\nbrew install python@3.11"),
             p(tags$strong("2. Arranca OralStats"), " desde la carpeta ", tags$code("Oralstats/"),
-              " (crea el entorno e instala n\u00facleo + sentimiento/emoci\u00f3n autom\u00e1ticamente):"),
+              " (crea el entorno e instala el n\u00facleo autom\u00e1ticamente; los niveles 2/3, desde los botones de arriba):"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
               "Rscript run.R"),
             p(tags$strong("3. (Opcional) Transcripci\u00f3n con WhisperX:"),
