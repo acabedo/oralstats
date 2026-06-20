@@ -44,6 +44,9 @@ seewave_disponible <- requireNamespace("seewave", quietly = TRUE)
 base64enc_disponible <- requireNamespace("base64enc", quietly = TRUE)
 praatpicture_disponible <- requireNamespace("praatpicture", quietly = TRUE)
 
+# Helpers de portabilidad (intérprete Python del proyecto + binarios de sistema).
+if (file.exists("R/portability.R")) source("R/portability.R")
+
 # ========================================
 # TRANSCRIPCIÓN FONÉTICA IPA (ESPAÑOL)
 # ========================================
@@ -4618,7 +4621,13 @@ h5(icon("upload"), " O importar manualmente"),
                          class = "btn-sm btn-outline-primary")
           ),
           div(class = "card-body p-2",
-            uiOutput("ui_diagnostico_python")
+            uiOutput("ui_diagnostico_python"),
+            tags$div(class = "mt-2 d-flex gap-2 flex-wrap",
+              actionButton("btn_instalar_nivel2", "Instalar Texto/Emoción (nivel 2)",
+                           class = "btn-sm btn-outline-warning"),
+              actionButton("btn_instalar_nivel3", "Instalar Transcripción (nivel 3)",
+                           class = "btn-sm btn-outline-success")
+            )
           )
         ),
 
@@ -4671,11 +4680,20 @@ h5(icon("upload"), " O importar manualmente"),
         hr(),
 
         # ── Entorno virtual recomendado ────────────────────────────────────
-        h4(icon("shield-alt"), " Entorno virtual recomendado (bert-env)"),
-        p("OralStats busca primero un entorno virtual llamado ",
-          tags$code("bert-env"), " en ", tags$code("~/.virtualenvs/bert-env"),
-          ". Se recomienda instalar todas las dependencias en ese entorno para no ",
-          "afectar al Python del sistema."),
+        h4(icon("shield-alt"), " Entorno e instalación"),
+        p("Lo más sencillo es ", strong("ejecutar la app con "), tags$code("Rscript run.R"),
+          " desde la carpeta ", tags$code("Oralstats/"), ": la primera vez crea automáticamente ",
+          "un entorno virtual propio del proyecto (", tags$code("oralstats-env"), ") sobre un Python ",
+          "compatible, instala las dependencias y arranca. Los niveles 2 y 3 también se añaden ",
+          "desde los botones de arriba."),
+        div(class = "alert alert-warning", style = "font-size:0.9em;",
+          icon("exclamation-triangle"), tags$strong(" Versión de Python: "),
+          "usa ", tags$strong("Python 3.10–3.12"), ". En versiones muy nuevas (3.13/3.14), ",
+          tags$code("torch"), "/", tags$code("whisperx"), " aún no tienen ", tags$em("wheels"),
+          " y los niveles 2/3 fallan al intentar compilar. Si tu Python por defecto es 3.13+, instala 3.12 ",
+          "o define ", tags$code("ORALSTATS_PYTHON=/ruta/a/python3.12"), " antes de la primera ejecución."),
+        p(class = "text-muted", style = "font-size:0.9em;",
+          "Si prefieres preparar el entorno a mano (o OralStats no encuentra Python), sigue los pasos por sistema:"),
 
         hr(),
 
@@ -4689,15 +4707,14 @@ h5(icon("upload"), " O importar manualmente"),
             p(tags$strong("1. Instala Python 3 si no lo tienes"), " (recomendado v\u00eda Homebrew):"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
               "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"\nbrew install python@3.11"),
-            p(tags$strong("2. Crea el entorno virtual:")),
+            p(tags$strong("2. Arranca OralStats"), " desde la carpeta ", tags$code("Oralstats/"),
+              " (crea el entorno e instala n\u00facleo + sentimiento/emoci\u00f3n autom\u00e1ticamente):"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "python3 -m venv ~/.virtualenvs/bert-env"),
-            p(tags$strong("3. Activa el entorno e instala los paquetes base:")),
+              "Rscript run.R"),
+            p(tags$strong("3. (Opcional) Transcripci\u00f3n con WhisperX:"),
+              " pulsa \u201cInstalar Transcripci\u00f3n (nivel 3)\u201d arriba, o:"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "source ~/.virtualenvs/bert-env/bin/activate\npip install --upgrade pip\npip install parselmouth tgt pysentimiento funasr soundfile"),
-            p(tags$strong("4. (Opcional) Instala WhisperX para transcripci\u00f3n + diarizaci\u00f3n:")),
-            tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "pip install whisperx"),
+              "Rscript setup_python.R asr"),
             p(class = "text-muted", style = "font-size:0.88em;",
               icon("info-circle"),
               " La primera vez que se use pysentimiento descargar\u00e1 autom\u00e1ticamente el modelo RoBERTuito (~500 MB). ",
@@ -4717,20 +4734,17 @@ h5(icon("upload"), " O importar manualmente"),
             p(tags$strong("1. Descarga e instala Python 3.11"),
               " desde ", tags$a(href="https://www.python.org/downloads/windows/", target="_blank", "python.org"),
               ". Durante la instalaci\u00f3n marca la casilla ", tags$em("\u2018Add Python to PATH\u2019"), "."),
-            p(tags$strong("2. Abre PowerShell o el S\u00edmbolo del sistema y crea el entorno virtual:")),
+            p(tags$strong("2. Arranca OralStats"), " desde la carpeta ", tags$code("Oralstats\\"),
+              " (crea el entorno e instala las dependencias autom\u00e1ticamente):"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "python -m venv %USERPROFILE%\\.virtualenvs\\bert-env"),
-            p(tags$strong("3. Activa el entorno e instala los paquetes base:")),
-            tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "%USERPROFILE%\\.virtualenvs\\bert-env\\Scripts\\activate\npip install --upgrade pip\npip install parselmouth tgt pysentimiento funasr soundfile"),
-            p(tags$strong("4. (Opcional) Instala WhisperX:")),
-            tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "pip install whisperx"),
+              "Rscript run.R"),
+            p(tags$strong("3. (Opcional) Transcripci\u00f3n con WhisperX:"),
+              " usa \u201cInstalar Transcripci\u00f3n (nivel 3)\u201d arriba, o ", tags$code("Rscript setup_python.R asr"), "."),
             p(class = "text-muted", style = "font-size:0.88em;",
               icon("info-circle"),
-              " En Windows, OralStats buscar\u00e1 el entorno en ",
-              tags$code("%USERPROFILE%\\.virtualenvs\\bert-env\\Scripts\\python.exe"), ". ",
-              "Si Python no se detecta, revisa que la ruta existe y que el entorno est\u00e1 activado al menos una vez.")
+              " Si OralStats no encuentra un Python 3.10\u20133.12, define ",
+              tags$code("ORALSTATS_PYTHON"), " con la ruta a ", tags$code("python.exe"),
+              " antes de ejecutar ", tags$code("run.R"), ".")
           )
         ),
 
@@ -4746,15 +4760,12 @@ h5(icon("upload"), " O importar manualmente"),
             p(tags$strong("1. Instala Python 3 y venv:")),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
               "sudo apt update && sudo apt install python3 python3-venv python3-pip -y"),
-            p(tags$strong("2. Crea el entorno virtual:")),
+            p(tags$strong("2. Arranca OralStats"), " desde la carpeta ", tags$code("Oralstats/"),
+              " (crea el entorno e instala las dependencias automáticamente):"),
             tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "python3 -m venv ~/.virtualenvs/bert-env"),
-            p(tags$strong("3. Activa e instala los paquetes base:")),
-            tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "source ~/.virtualenvs/bert-env/bin/activate\npip install --upgrade pip\npip install parselmouth tgt pysentimiento funasr soundfile"),
-            p(tags$strong("4. (Opcional) Instala WhisperX:")),
-            tags$pre(style = "background:#1e1e1e; color:#d4d4d4; border-radius:4px; padding:10px;",
-              "pip install whisperx")
+              "Rscript run.R"),
+            p(tags$strong("3. (Opcional) Transcripción con WhisperX:"),
+              " usa el botón de arriba o ", tags$code("Rscript setup_python.R asr"), ".")
           )
         ),
 
@@ -4848,18 +4859,15 @@ h5(icon("upload"), " O importar manualmente"),
 server <- function(input, output, session) {
   options(shiny.maxRequestSize = 1000*1024^2)
 
-  # ── Helper: ruta al Python del virtualenv bert-env (cross-platform) ──────────
-  # Windows: Scripts\python.exe  |  Unix/Mac: bin/python3
-  .python_venv_path <- local({
-    home <- Sys.getenv("HOME")
-    if (nchar(home) == 0) home <- Sys.getenv("USERPROFILE")  # Windows fallback
-    if (.Platform$OS.type == "windows") {
-      file.path(home, ".virtualenvs", "bert-env", "Scripts", "python.exe")
-    } else {
-      file.path(home, ".virtualenvs", "bert-env", "bin", "python3")
-    }
-  })
-  # Candidatos adicionales de Python en Windows (python.exe vs python3)
+  # ── Intérprete Python del proyecto (reticulate) con fallback ────────────────
+  # oralstats_python() (R/portability.R) prioriza el venv del proyecto
+  # 'oralstats-env', luego ~/.virtualenvs/bert-env, luego el PATH.
+  .python_venv_path <- if (exists("oralstats_python")) {
+    tryCatch(oralstats_python(), error = function(e) NA_character_)
+  } else {
+    NA_character_
+  }
+  # Candidatos adicionales de Python (fallback si el venv del proyecto falla)
   .python_sys_candidates <- if (.Platform$OS.type == "windows") {
     c(Sys.which("python3"), Sys.which("python"))
   } else {
@@ -4888,17 +4896,24 @@ server <- function(input, output, session) {
       if (ret == 0) "OK" else "NO"
     }
 
-    ffmpeg_ok <- nchar(Sys.which("ffmpeg")) > 0
+    sysdeps <- if (exists("check_system_deps")) check_system_deps() else
+      list(praat = list(found = FALSE), ffmpeg = list(found = FALSE),
+           pandoc = list(found = FALSE), chrome = list(found = FALSE))
 
     list(
-      py_bin     = if (!is.na(py_bin)) py_bin else "(no encontrado)",
-      whisperx   = check_lib("whisperx"),
-      pyannote   = check_lib("pyannote.audio"),
-      parselmouth = check_lib("parselmouth"),
-      pysentimiento = check_lib("pysentimiento"),
-      funasr     = check_lib("funasr"),
-      ffmpeg     = if (ffmpeg_ok) "OK" else "NO",
-      ts         = format(Sys.time(), "%H:%M:%S")
+      py_bin       = if (!is.na(py_bin)) py_bin else "(no encontrado)",
+      parselmouth  = check_lib("parselmouth"),     # nivel 1
+      tgt          = check_lib("tgt"),              # nivel 1
+      pysentimiento = check_lib("pysentimiento"),  # nivel 2
+      funasr       = check_lib("funasr"),          # nivel 2
+      soundfile    = check_lib("soundfile"),       # nivel 2
+      whisperx     = check_lib("whisperx"),        # nivel 3
+      pyannote     = check_lib("pyannote.audio"),  # nivel 3
+      praat        = if (sysdeps$praat$found)  "OK" else "NO",
+      ffmpeg       = if (sysdeps$ffmpeg$found) "OK" else "NO",
+      pandoc       = if (sysdeps$pandoc$found) "OK" else "NO",
+      chrome       = if (sysdeps$chrome$found) "OK" else "NO",
+      ts           = format(Sys.time(), "%H:%M:%S")
     )
   }
 
@@ -4906,6 +4921,18 @@ server <- function(input, output, session) {
     rv_diagnostico(NULL)  # spinner
     isolate({ rv_diagnostico(run_diagnostico()) })
   }, ignoreNULL = TRUE)
+
+  lanzar_instalacion <- function(nivel) {
+    rscript <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
+    system2(rscript, c("setup_python.R", nivel), wait = FALSE)
+    showNotification(
+      paste0("Instalando nivel '", nivel, "' en segundo plano. Puede tardar varios minutos; ",
+             "pulsa 'Verificar ahora' cuando termine."),
+      type = "message", duration = 12
+    )
+  }
+  observeEvent(input$btn_instalar_nivel2, lanzar_instalacion("text"))
+  observeEvent(input$btn_instalar_nivel3, lanzar_instalacion("asr"))
 
   # Ejecutar diagnóstico inicial al arrancar la sesión (sin bloquear UI)
   observe({
