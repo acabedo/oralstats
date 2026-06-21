@@ -4,23 +4,23 @@
 ORALSTATS_VENV <- "oralstats-env"
 
 # Devuelve la ruta al intérprete Python que debe usar OralStats.
-# Prioridad: (1) entorno conda del proyecto, (1b) venv pip del proyecto (legacy),
+# Prioridad: (1) virtualenv del proyecto, (1b) entorno conda del mismo nombre (compat),
 #            (2) ~/.virtualenvs/bert-env (compatibilidad), (3) python3/python del PATH.
 # Devuelve NA_character_ si no hay ninguno.
 oralstats_python <- function() {
   if (requireNamespace("reticulate", quietly = TRUE)) {
-    # (1) entorno conda del proyecto (vía conda/mamba)
-    envs <- tryCatch(reticulate::conda_list()$name, error = function(e) character(0))
-    if (ORALSTATS_VENV %in% envs) {
-      pc <- tryCatch(reticulate::conda_python(ORALSTATS_VENV), error = function(e) NA_character_)
-      if (!is.na(pc) && nzchar(pc) && file.exists(pc)) return(pc)
-    }
-    # (1b) virtualenv pip del proyecto (compatibilidad con instalaciones antiguas)
+    # (1) virtualenv del proyecto (creado por setup_python.R con pip)
     if (isTRUE(tryCatch(reticulate::virtualenv_exists(ORALSTATS_VENV),
                         error = function(e) FALSE))) {
       proj <- tryCatch(reticulate::virtualenv_python(ORALSTATS_VENV),
                        error = function(e) NA_character_)
       if (!is.na(proj) && nzchar(proj) && file.exists(proj)) return(proj)
+    }
+    # (1b) entorno conda con el mismo nombre (compatibilidad con instalaciones previas)
+    envs <- tryCatch(reticulate::conda_list()$name, error = function(e) character(0))
+    if (ORALSTATS_VENV %in% envs) {
+      pc <- tryCatch(reticulate::conda_python(ORALSTATS_VENV), error = function(e) NA_character_)
+      if (!is.na(pc) && nzchar(pc) && file.exists(pc)) return(pc)
     }
   }
 

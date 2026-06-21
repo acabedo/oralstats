@@ -34,10 +34,9 @@ if (!file.exists("app.R") || !file.exists("R/portability.R")) {
 }
 
 # 1) Asegurar los paquetes de R necesarios: instala los que FALTEN desde CRAN
-#    actual (binarios, sin compilar). Es lo mismo que hace app.R al inicio, así
-#    que el resultado es idéntico tanto con `Rscript run.R` como abriendo app.R
-#    con "Run App" en RStudio/Positron.
-if (file.exists("renv/activate.R")) source("renv/activate.R")  # librería aislada del proyecto, si existe
+#    actual (binarios, sin compilar) en la librería normal de R. Es lo mismo que
+#    hace app.R al inicio, así que el resultado es idéntico tanto con `Rscript
+#    run.R` como abriendo app.R con "Run App" en RStudio/Positron.
 source("R/ensure_r_packages.R")
 
 # 2) Bootstrap del entorno Python del proyecto.

@@ -38,12 +38,11 @@ local({
   tipo <- if (.Platform$OS.type == "windows" ||
               identical(Sys.info()[["sysname"]], "Darwin")) "binary" else getOption("pkgType")
 
-  # Instalar UNO A UNO: si un opcional no tiene binario, se omite sin bloquear el
-  # resto (esa función queda desactivada; el núcleo se instala igual).
-  for (p in faltan) {
-    tryCatch(
-      suppressWarnings(install.packages(p, repos = repos, type = tipo)),
-      error = function(e) message("  (se omite '", p, "': ", conditionMessage(e), ")")
-    )
-  }
+  # Una sola llamada install.packages(c(...)). Con compile.from.source='never' y
+  # type='binary' (Mac/Win), los que no tengan binario se omiten con un aviso, sin
+  # bloquear ni preguntar.
+  tryCatch(
+    suppressWarnings(install.packages(faltan, repos = repos, type = tipo)),
+    error = function(e) message("Aviso: algún paquete de R no se instaló: ", conditionMessage(e))
+  )
 })

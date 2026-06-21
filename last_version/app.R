@@ -49,24 +49,11 @@ base64enc_disponible <- requireNamespace("base64enc", quietly = TRUE)
 praatpicture_disponible <- requireNamespace("praatpicture", quietly = TRUE)
 
 # Helpers de portabilidad (intérprete Python del proyecto + binarios de sistema).
+# NOTA: app.R NO instala Python al abrir (así arranca de forma independiente). El
+# entorno Python se prepara con run.R (núcleo) o con los botones de "Dependencias
+# Python" (niveles 2/3). Si el entorno aún no existe, esas funciones quedan
+# desactivadas hasta que se instalen, pero la app abre igual.
 if (file.exists("R/portability.R")) source("R/portability.R")
-
-# Preparar el entorno Python del proyecto la PRIMERA vez (crea conda + nivel core),
-# para que abrir app.R con "Run App" funcione igual que ejecutar run.R. En arranques
-# posteriores el entorno ya existe y este bloque no hace nada.
-if (file.exists("R/setup_python.R") && exists("ORALSTATS_VENV")) {
-  .oralstats_env_ok <- isTRUE(tryCatch(
-    requireNamespace("reticulate", quietly = TRUE) &&
-      ORALSTATS_VENV %in% tryCatch(reticulate::conda_list()$name,
-                                   error = function(e) character(0)),
-    error = function(e) FALSE
-  ))
-  if (!.oralstats_env_ok) {
-    message("OralStats: preparando el entorno Python por primera vez (puede tardar varios minutos)…")
-    source("R/setup_python.R")
-    try(oralstats_bootstrap(Sys.getenv("ORALSTATS_PY_LEVEL", "core")), silent = TRUE)
-  }
-}
 
 # ========================================
 # TRANSCRIPCIÓN FONÉTICA IPA (ESPAÑOL)
@@ -4704,21 +4691,22 @@ h5(icon("upload"), " O importar manualmente"),
 
         # ── Entorno virtual recomendado ────────────────────────────────────
         h4(icon("shield-alt"), " Entorno e instalación"),
-        p(strong("No necesitas instalar Python ni conda a mano."), " Solo abre ",
+        p(strong("No necesitas instalar Python a mano."), " Solo abre ",
           tags$code("run.R"), " y pulsa ", strong("Source"), " (o ejecuta ", tags$code("Rscript run.R"),
           " desde la carpeta ", tags$code("Oralstats/"), "). La primera vez: instala los paquetes de R, ",
-          "instala ", strong("Miniconda"), " si hace falta, crea el entorno del proyecto (",
-          tags$code("oralstats-env"), ") e instala el núcleo (Parselmouth). Los niveles 2 y 3 se añaden ",
-          "con los botones de arriba."),
+          "crea con ", strong("reticulate"), " un entorno virtual del proyecto (",
+          tags$code("oralstats-env"), ") e instala el núcleo (Parselmouth) con pip. Los niveles 2 y 3 ",
+          "(Sentimiento/Emoción y Transcripción) se añaden con los botones de arriba."),
         div(class = "alert alert-success", style = "font-size:0.9em;",
-          icon("check-circle"), tags$strong(" Sin compilar nada: "),
-          "el entorno Python se crea con ", strong("conda"), " (binarios de conda-forge para ",
+          icon("check-circle"), tags$strong(" Sin compilar: "),
+          "se instalan ", strong("ruedas (wheels) precompiladas"), " de PyPI, que existen para ",
           tags$code("torch"), "/", tags$code("spacy"), "/", tags$code("numba"),
-          ", y pip para el resto), evitando los errores de compilación. Solo necesitas ",
-          strong("R"), " y conexión a Internet la primera vez."),
+          " en Mac (Apple Silicon e Intel), Windows y Linux. Si tu equipo no tiene Python, ",
+          "reticulate instala uno automáticamente. Solo necesitas ", strong("R"),
+          " y conexión a Internet la primera vez."),
         p(class = "text-muted", style = "font-size:0.9em;",
-          "Alternativa de un comando si ya usas conda: ", tags$code("conda env create -f python/environment.yml"),
-          ". O preparar el entorno a mano por sistema:"),
+          "Si OralStats no encuentra Python, define ", tags$code("ORALSTATS_PYTHON"),
+          " con la ruta a un Python 3.10–3.12. O preparar el entorno a mano por sistema:"),
 
         hr(),
 
@@ -4947,17 +4935,62 @@ server <- function(input, output, session) {
     isolate({ rv_diagnostico(run_diagnostico()) })
   }, ignoreNULL = TRUE)
 
+  # Estado de la instalación de niveles Python (para el modal de progreso en vivo).
+  rv_inst <- reactiveValues(running = FALSE, logfile = NULL, level = "", tail = "")
+
   lanzar_instalacion <- function(nivel) {
     rscript <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
-    system2(rscript, c("R/setup_python.R", nivel), wait = FALSE)
-    showNotification(
-      paste0("Instalando nivel '", nivel, "' en segundo plano. Puede tardar varios minutos; ",
-             "pulsa 'Verificar ahora' cuando termine."),
-      type = "message", duration = 12
-    )
+    logf <- tempfile(fileext = ".log"); file.create(logf)
+    # Instalación en segundo plano; su salida (stdout+stderr) va al log que el modal lee.
+    system2(rscript, c("R/setup_python.R", nivel), stdout = logf, stderr = logf, wait = FALSE)
+    rv_inst$logfile <- logf
+    rv_inst$level   <- nivel
+    rv_inst$tail    <- "Iniciando instalación…"
+    rv_inst$running <- TRUE
+    showModal(modalDialog(
+      title = tagList(icon("download"), paste0(" Instalando nivel '", nivel, "'")),
+      tags$style(HTML(
+        "#oralstats_install_log { background-color:#1e1e1e !important; color:#e6e6e6 !important;
+         border:none !important; max-height:300px; overflow-y:auto; font-size:11px;
+         white-space:pre-wrap; padding:8px; border-radius:4px; }")),
+      tags$p("Esto puede tardar varios minutos (descarga de paquetes). ",
+             tags$b("No cierres la app."), " Progreso en vivo:"),
+      verbatimTextOutput("oralstats_install_log"),
+      uiOutput("oralstats_install_status"),
+      footer = actionButton("oralstats_install_cerrar", "Cerrar", class = "btn-secondary"),
+      easyClose = FALSE, size = "l"
+    ))
   }
   observeEvent(input$btn_instalar_nivel2, lanzar_instalacion("text"))
   observeEvent(input$btn_instalar_nivel3, lanzar_instalacion("asr"))
+  observeEvent(input$oralstats_install_cerrar, removeModal())
+
+  # Poller: mientras instala, leer el log en vivo y detectar el final.
+  observe({
+    if (!isTRUE(rv_inst$running)) return()
+    invalidateLater(1200)
+    lf <- rv_inst$logfile
+    if (is.null(lf) || !file.exists(lf)) return()
+    lns <- tryCatch(readLines(lf, warn = FALSE), error = function(e) character(0))
+    rv_inst$tail <- paste(utils::tail(lns, 40), collapse = "\n")
+    if (any(grepl("ORALSTATS_BOOTSTRAP_DONE", lns, fixed = TRUE))) {
+      rv_inst$running <- FALSE
+      rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ✅ COMPLETADO ===")
+      showNotification("Instalación finalizada.", type = "message", duration = 8)
+      isolate({ rv_diagnostico(run_diagnostico()) })   # refresca el diagnóstico
+    }
+  })
+  output$oralstats_install_log <- renderText({ rv_inst$tail })
+  output$oralstats_install_status <- renderUI({
+    if (isTRUE(rv_inst$running)) {
+      tags$div(class = "text-muted", style = "font-size:0.85em; margin-top:8px;",
+               tags$span(class = "spinner-border spinner-border-sm", role = "status"),
+               " Instalando… (no cierres la app)")
+    } else {
+      tags$div(class = "text-success", style = "font-weight:600; margin-top:8px;",
+               icon("check-circle"), " Instalación finalizada. Pulsa 'Cerrar'.")
+    }
+  })
 
   # Ejecutar diagnóstico inicial al arrancar la sesión (sin bloquear UI)
   observe({
