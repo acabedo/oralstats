@@ -14,7 +14,7 @@
 
 if (!exists("ORALSTATS_VENV")) source("R/portability.R")
 
-# ── Selección de Python (versión 3.9-3.12 y arquitectura nativa) ──────────────
+# ── Selección de Python (versión 3.10-3.12 y arquitectura nativa) ──────────────
 .norm_arch <- function(a) {
   a <- tolower(a)
   if (grepl("arm|aarch", a)) "arm" else if (grepl("x86|amd|x64|i386", a)) "x86" else a
@@ -29,8 +29,9 @@ if (!exists("ORALSTATS_VENV")) source("R/portability.R")
   as.integer(parts)
 }
 .oralstats_py_compatible <- function(v) {
+  # Mínimo 3.10: spacy/thinc (vía pysentimiento) ya NO soportan Python 3.9.
   if (is.null(v)) return(FALSE)
-  (v[1] > 3 || (v[1] == 3 && v[2] >= 9)) && (v[1] < 3 || (v[1] == 3 && v[2] <= 12))
+  (v[1] > 3 || (v[1] == 3 && v[2] >= 10)) && (v[1] < 3 || (v[1] == 3 && v[2] <= 12))
 }
 .oralstats_py_arch <- function(py) {
   a <- tryCatch(
@@ -58,6 +59,21 @@ oralstats_choose_python <- function() {
   asr  = c("whisperx", "pyannote.audio")
 )
 
+<<<<<<< HEAD
+# Nombre del módulo de import (Python) para cada paquete pip. Se usa para
+# verificar, tras instalar, que el paquete realmente se puede importar.
+.oralstats_import <- c(
+  "praat-parselmouth" = "parselmouth",
+  "tgt"               = "tgt",
+  "pysentimiento"     = "pysentimiento",
+  "funasr"            = "funasr",
+  "soundfile"         = "soundfile",
+  "whisperx"          = "whisperx",
+  "pyannote.audio"    = "pyannote.audio"
+)
+
+=======
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
 oralstats_bootstrap <- function(level = "core") {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Falta el paquete R 'reticulate' (lo instala ensure_r_packages.R).")
@@ -90,12 +106,47 @@ oralstats_bootstrap <- function(level = "core") {
   )
 
   system2(pybin, c("-m", "pip", "install", "--upgrade", "pip"))
+<<<<<<< HEAD
+
+  # Instalar paquete a paquete (NO en bloque). Si pip no puede resolver uno
+  # —p.ej. conflicto de versiones de torch entre pysentimiento y funasr— los
+  # demás se instalan igualmente. Instalar en bloque hacía que un fallo dejara
+  # fuera a funasr/soundfile sin avisar.
+  pkgs <- unique(unlist(.oralstats_pip[niveles], use.names = FALSE))
+  for (pkg in pkgs) {
+    message(">>> pip install: ", pkg)
+    tryCatch(system2(pybin, c("-m", "pip", "install", "--upgrade", pkg)),
+             error = function(e) message("  (excepción al instalar ", pkg, ": ",
+                                         conditionMessage(e), ")"))
+  }
+
+  # Verificación final: importar cada paquete dentro del propio venv. Detecta
+  # tanto fallos de instalación como conflictos que rompen un paquete ya puesto.
+  message("\n=== Verificando importaciones en el entorno ===")
+  fallos <- character(0)
+  for (pkg in pkgs) {
+    imp <- unname(.oralstats_import[pkg]); if (is.na(imp)) imp <- pkg
+    ok <- identical(
+      suppressWarnings(system2(pybin, c("-c", shQuote(paste0("import ", imp))),
+                               stdout = FALSE, stderr = FALSE)),
+      0L)
+    if (ok) message("OK    ", pkg)
+    else  { message("FALLO ", pkg, " (no se importa '", imp, "')"); fallos <- c(fallos, pkg) }
+  }
+  if (length(fallos)) {
+    # Marca que la app detecta para avisar (sin mandar al usuario al terminal).
+    message("ORALSTATS_PIP_FALLOS: ", paste(fallos, collapse = ", "))
+    warning("No se pudieron instalar/importar: ", paste(fallos, collapse = ", "))
+  } else {
+    message("ORALSTATS_PIP_OK")
+=======
   for (lv in niveles) {
     pp <- .oralstats_pip[[lv]]
     message("pip [", lv, "]: ", paste(pp, collapse = ", "))
     st <- tryCatch(system2(pybin, c("-m", "pip", "install", pp)),
                    error = function(e) 1L)
     if (!identical(st, 0L)) warning("Algún paquete del nivel '", lv, "' no se instaló.")
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
   }
   invisible(pybin)
 }

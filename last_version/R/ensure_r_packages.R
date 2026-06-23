@@ -14,7 +14,10 @@ local({
     "seewave", "tuneR", "udpipe", "reticulate",
     # Opcionales de R (CRAN, ligeros: se instalan bien como binario)
     "readxl", "irr", "httr", "ggwordcloud", "wordcloud2", "partykit", "ggparty",
-    "randomForest", "praatpicture", "rPraat", "pagedown", "base64enc", "stopwords"
+    "randomForest", "praatpicture", "rPraat", "pagedown", "base64enc", "stopwords",
+    # Otros usados directamente en el código (vía library/::)
+    "waiter", "processx", "remotes", "reshape2", "rmarkdown", "rstudioapi",
+    "webshot2", "wrassp"
   )
   # NOTA: 'audio.whisper' y 'whisper' (R, de GitHub) se dejan fuera a propósito:
   # requieren compilación y no son CRAN. Si se quieren, se instalan aparte.

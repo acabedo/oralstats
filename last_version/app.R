@@ -3145,9 +3145,14 @@ ui <- page_navbar(
           selected = "etiqueta", inline = TRUE))
       ),
       wordcloud2::wordcloud2Output("lex_nube_plot", height = "500px"),
+      div(style = "margin-top:10px;",
+          downloadButton("lex_nube_descargar",
+                         tagList(icon("download"), " Descargar nube (PNG alta resolución)"),
+                         class = "btn-sm btn-outline-primary")),
       helpText(style = "font-size:0.8em; color:#888; margin-top:4px;",
                icon("info-circle"),
-               " El tamaño de cada palabra es proporcional a su frecuencia en el corpus seleccionado.")
+               " El tamaño de cada palabra es proporcional a su frecuencia en el corpus seleccionado. ",
+               "La descarga genera una versión estática de alta resolución (mejor para imprimir).")
     ),
 
     nav_panel(title = "Colocaciones", icon = icon("link"), value = "tab_lexico_coloc",
@@ -4936,7 +4941,22 @@ server <- function(input, output, session) {
   }, ignoreNULL = TRUE)
 
   # Estado de la instalación de niveles Python (para el modal de progreso en vivo).
+<<<<<<< HEAD
+  rv_inst <- reactiveValues(running = FALSE, logfile = NULL, level = "", tail = "", fallos = "")
+
+  # Muestra un modal de forma robusta. En Bootstrap 5 (bslib), llamar a
+  # showModal() mientras hay OTRO modal abierto deja el nuevo invisible (se
+  # queda el anterior). Pasaba al pulsar "Instalar nivel" justo tras crear un
+  # análisis, con el modal "Cláusulas calculadas" todavía abierto. Cerramos
+  # cualquier modal y reabrimos tras un breve retardo (deja terminar la
+  # transición de cierre de Bootstrap antes de mostrar el nuevo).
+  mostrar_modal_seguro <- function(modal, delay_ms = 400) {
+    removeModal()
+    shinyjs::delay(delay_ms, showModal(modal))
+  }
+=======
   rv_inst <- reactiveValues(running = FALSE, logfile = NULL, level = "", tail = "")
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
 
   lanzar_instalacion <- function(nivel) {
     rscript <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
@@ -4946,8 +4966,14 @@ server <- function(input, output, session) {
     rv_inst$logfile <- logf
     rv_inst$level   <- nivel
     rv_inst$tail    <- "Iniciando instalación…"
+<<<<<<< HEAD
+    rv_inst$fallos  <- ""
+    rv_inst$running <- TRUE
+    mostrar_modal_seguro(modalDialog(
+=======
     rv_inst$running <- TRUE
     showModal(modalDialog(
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
       title = tagList(icon("download"), paste0(" Instalando nivel '", nivel, "'")),
       tags$style(HTML(
         "#oralstats_install_log { background-color:#1e1e1e !important; color:#e6e6e6 !important;
@@ -4965,6 +4991,32 @@ server <- function(input, output, session) {
   observeEvent(input$btn_instalar_nivel3, lanzar_instalacion("asr"))
   observeEvent(input$oralstats_install_cerrar, removeModal())
 
+<<<<<<< HEAD
+  # Modal reutilizable cuando falta una dependencia Python: ofrece instalarla
+  # desde la app (un botón), en lugar de mandar al usuario al terminal con pip.
+  rv_dep_nivel <- reactiveVal("text")
+  mostrar_modal_falta_dep <- function(nivel, titulo, cuerpo) {
+    rv_dep_nivel(nivel)
+    mostrar_modal_seguro(modalDialog(
+      title = tagList(icon("exclamation-triangle", class = "text-warning"), titulo),
+      cuerpo,
+      tags$p(tags$b("No necesitas usar el terminal."),
+             " Pulsa el botón para instalarlo automáticamente. Puede tardar varios minutos."),
+      footer = tagList(
+        actionButton("btn_instalar_dep_inapp", tagList(icon("download"), " Instalar ahora"),
+                     class = "btn-primary"),
+        modalButton("Cancelar")
+      ),
+      easyClose = TRUE
+    ))
+  }
+  observeEvent(input$btn_instalar_dep_inapp, {
+    nivel <- rv_dep_nivel(); if (is.null(nivel) || !nzchar(nivel)) nivel <- "text"
+    lanzar_instalacion(nivel)   # ya cierra el modal actual y abre el de progreso
+  })
+
+=======
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
   # Poller: mientras instala, leer el log en vivo y detectar el final.
   observe({
     if (!isTRUE(rv_inst$running)) return()
@@ -4975,8 +5027,25 @@ server <- function(input, output, session) {
     rv_inst$tail <- paste(utils::tail(lns, 40), collapse = "\n")
     if (any(grepl("ORALSTATS_BOOTSTRAP_DONE", lns, fixed = TRUE))) {
       rv_inst$running <- FALSE
+<<<<<<< HEAD
+      # Detectar fallos parciales reportados por setup_python.R (p.ej. funasr).
+      fallo_line <- grep("ORALSTATS_PIP_FALLOS:", lns, value = TRUE, fixed = TRUE)
+      if (length(fallo_line)) {
+        pkgs <- trimws(sub(".*ORALSTATS_PIP_FALLOS:", "", fallo_line[length(fallo_line)]))
+        rv_inst$fallos <- pkgs
+        rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ⚠ FINALIZADO CON FALLOS: ", pkgs, " ===")
+        showNotification(paste0("Instalación finalizada, pero fallaron: ", pkgs,
+                                ". Pulsa de nuevo el botón para reintentar."),
+                         type = "warning", duration = NULL)
+      } else {
+        rv_inst$fallos <- ""
+        rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ✅ COMPLETADO ===")
+        showNotification("Instalación finalizada.", type = "message", duration = 8)
+      }
+=======
       rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ✅ COMPLETADO ===")
       showNotification("Instalación finalizada.", type = "message", duration = 8)
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
       isolate({ rv_diagnostico(run_diagnostico()) })   # refresca el diagnóstico
     }
   })
@@ -4986,6 +5055,14 @@ server <- function(input, output, session) {
       tags$div(class = "text-muted", style = "font-size:0.85em; margin-top:8px;",
                tags$span(class = "spinner-border spinner-border-sm", role = "status"),
                " Instalando… (no cierres la app)")
+<<<<<<< HEAD
+    } else if (nzchar(rv_inst$fallos)) {
+      tags$div(class = "text-danger", style = "font-weight:600; margin-top:8px;",
+               icon("exclamation-triangle"),
+               paste0(" Finalizado, pero no se instalaron: ", rv_inst$fallos,
+                      ". Cierra y vuelve a pulsar el botón para reintentar."))
+=======
+>>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
     } else {
       tags$div(class = "text-success", style = "font-weight:600; margin-top:8px;",
                icon("check-circle"), " Instalación finalizada. Pulsa 'Cerrar'.")
@@ -9172,13 +9249,16 @@ rds_files <- grep("\\.meta\\.rds$",
     }
     
     if (is.null(python_bin)) {
-      removeModal()
-      showNotification(
-        paste0("pysentimiento no encontrado en ningún Python.\n",
-               "Instale con: pip install pysentimiento\n",
-               "Buscados: ", paste(python_candidates[nchar(python_candidates) > 0], collapse = ", ")),
-        type = "error", duration = 15
-      )
+      mostrar_modal_falta_dep("text",
+        " Falta el módulo de análisis de sentimiento/emoción",
+        tagList(
+          tags$p("El análisis de sentimiento textual y emociones necesita el paquete ",
+                 tags$code("pysentimiento"), " (nivel 2: Texto/Emoción), que no se ha encontrado ",
+                 "en ningún intérprete Python."),
+          tags$p(class = "text-muted", style = "font-size:0.85em;",
+                 "Intérpretes buscados: ",
+                 paste(python_candidates[nchar(python_candidates) > 0], collapse = ", "))
+        ))
       return()
     }
     
@@ -9220,8 +9300,14 @@ rds_files <- grep("\\.meta\\.rds$",
                 stdout = TRUE, stderr = TRUE)
       }, error = function(e) "")
       if (!any(grepl("OK", py_check2))) {
-        removeModal()
-        showNotification("funasr no instalado en el Python detectado. Ejecute: pip install funasr soundfile", type = "error")
+        mostrar_modal_falta_dep("text",
+          " Falta el módulo de emociones acústicas",
+          tagList(
+            tags$p("El análisis de emociones acústicas (emotion2vec+/wav2vec) necesita los paquetes ",
+                   tags$code("funasr"), " y ", tags$code("soundfile"),
+                   ", que no están instalados en el entorno Python."),
+            tags$p("Forman parte del nivel 2 (Texto/Emoción).")
+          ))
         return()
       }
     }
@@ -21864,9 +21950,33 @@ construir_contexto_html <- function(idx_fila, n_contexto = 5) {
                 leyenda_html <- paste0(leyenda_html, '</div>')
                 
                 html <- c(html, img_html, leyenda_html,
-                  paste0('<p class="meta"><em>Figura ', fig_num, 
+                  paste0('<p class="meta"><em>Figura ', fig_num,
                     '. Árbol de decisión condicional para ', var_dep_tree, '. Profundidad: ', maxdepth_tree, '.</em></p>'))
-                
+
+                # Texto verbose del árbol (reglas/nodos) para leer en detalle o
+                # pegar en una IA. Una imagen no se puede pegar; este bloque sí.
+                # Sigue el mismo patrón que el resto de secciones (generar_comentario).
+                if (comentario_modo != "ninguno") {
+                  arbol_texto <- tryCatch({
+                    reglas <- paste(capture.output(print(ct_model)), collapse = "\n")
+                    paste0(
+                      "Árbol de decisión condicional (partykit::ctree).\n",
+                      "Variable predicha: ", var_dep_tree,
+                      " (categorías: ", paste(cats_tree, collapse = ", "), ").\n",
+                      "Predictores considerados: ", paste(predictores_tree, collapse = ", "), ".\n",
+                      "Profundidad máxima: ", maxdepth_tree,
+                      ". Observaciones (casos completos): ", nrow(df_tree), ".\n\n",
+                      "Estructura del árbol — reglas de decisión y nodos terminales ",
+                      "(cada hoja indica n y la distribución/probabilidad de clases):\n",
+                      reglas
+                    )
+                  }, error = function(e) paste0(
+                    "No se pudo extraer la estructura textual del árbol: ", e$message))
+                  html <- c(html, generar_comentario("Árbol de Decisión", arbol_texto,
+                    contexto = paste0("Árbol condicional (ctree) de profundidad ", maxdepth_tree,
+                                      " que predice ", var_dep_tree)))
+                }
+
               } else {
                 html <- c(html, '<div class="warning-box">Paquete partykit no disponible. install.packages("partykit")</div>')
               }
@@ -25210,6 +25320,42 @@ print("DIARJSON:" + json.dumps(segs))
       size   = 0.6,
       minSize = 4)
   })
+
+  # Descarga de la nube como PNG estático de alta resolución (ggwordcloud).
+  # La nube interactiva (wordcloud2) es un canvas que no se puede exportar bien;
+  # se regenera con los mismos tokens/parámetros una versión limpia para imprimir.
+  output$lex_nube_descargar <- downloadHandler(
+    filename = function() paste0("nube_palabras_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png"),
+    content = function(file) {
+      if (!requireNamespace("ggwordcloud", quietly = TRUE))
+        stop("Falta el paquete ggwordcloud. Instálalo con install.packages('ggwordcloud').")
+      toks <- get_lexico_tokens(datos$words,
+        archivo    = input$lex_nube_archivo,
+        hablante   = input$lex_nube_hablante,
+        forma      = input$lex_nube_forma,
+        excluir_sw = isTRUE(input$lex_nube_stopwords))
+      validate(need(length(toks) > 0, "No hay palabras para la nube en la selección actual."))
+      fr  <- sort(table(toks), decreasing = TRUE)
+      top <- min(as.integer(input$lex_nube_top), length(fr))
+      df_wc <- data.frame(word = names(fr)[seq_len(top)],
+                          freq = as.integer(fr)[seq_len(top)],
+                          stringsAsFactors = FALSE)
+      # gridtext (geom_text_wordcloud) interpreta <, >, & como marcado: descartarlos.
+      df_wc <- df_wc[!grepl("[<>&]", df_wc$word), , drop = FALSE]
+      validate(need(nrow(df_wc) > 0, "No hay palabras válidas para la nube."))
+      set.seed(42)
+      pal <- rep(c("#0C447C","#2563eb","#1D9E75","#378ADD","#BA7517"),
+                 length.out = nrow(df_wc))
+      p <- ggplot2::ggplot(df_wc,
+             ggplot2::aes(label = word, size = freq,
+                          color = factor(seq_len(nrow(df_wc))))) +
+        ggwordcloud::geom_text_wordcloud(rm_outside = TRUE) +
+        ggplot2::scale_size_area(max_size = 24) +
+        ggplot2::scale_color_manual(values = pal, guide = "none") +
+        ggplot2::theme_minimal()
+      ggplot2::ggsave(file, plot = p, width = 10, height = 7, dpi = 300, bg = "white")
+    }
+  )
 
   # ── Colocaciones (MI, t-score, LL) ──────────────────────────────────────
   rv_coloc <- reactiveVal(NULL)
