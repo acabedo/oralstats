@@ -100,6 +100,16 @@ Some categorization procedures are still being improved. So, although they are c
 
    **Note:** We used sentiment analysis and the explained Tidyverse approach to partially support the PhD thesis of [Danny Murillo](https://www.researchgate.net/profile/Danny-Murillo-Lanza) (in elaboration), but you could use any other tagging process. The process only needs a list of words or expressions and their meaning, being this a sentiment or another conceptual factor, such as politeness, humor, mitigation or whatever element that could be interesting for a researcher.
 
+## Funding (earlier versions)
+
+Although the Spanish Ministry of Science and Innovation and the Conselleria de Innovación, Universidades, Ciencia y Sociedad Digital didn't support these earlier versions directly, I received the love of some colleagues with funded projects. This love has been materialized in the form of a couple of computers and the payment of another couple of conference fees (and trips). I am very grateful for that. I want to cite these funded projects that have supported me in the previously mentioned way:
+
+1. Project: "La atenuación pragmática en su variación genérica: géneros discursivos escritos y orales en el español de España y América" (MICINN, FFI2016-75249-P). Directoras: Marta Albelda / Maria Estellés (Departamento de Filología Española, UV). 2016-2021
+
+2. Project: "Unidades discursivas para una descripción sistemática de los marcadores del discurso en español" (UDEMADIS, FFI2016-77841-PP-MICINN). Director: Salvador Pons Bordería (Departamento de Filología Española, UV). 2016-2021
+
+3. Project: ESPRINT. Estrategias pragmático-retóricas en la interacción conversacional conflictiva entre íntimos y conocidos: intensificación, atenuación y gestión interaccional. Ministerio de Ciencia e Innovación. MICINN (PID2020-114895GB-10). 2021-
+
 ## Mods
 
 As scientific interests can differ substantially from one researcher to another, there are different projects where Oralstats is directly involved. The ones below are just some of them, but the point is that they can be incremented as Oralstats is also being improved. All these projects, with the exception of the *Discourse genre and idiolectal analysis from politicians* and the analysis of the youtuber *Pico de Oro/Padre Zorro*, are still being developed.
