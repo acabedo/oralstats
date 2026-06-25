@@ -25307,33 +25307,62 @@ print("DIARJSON:" + json.dumps(segs))
   output$lex_nube_descargar <- downloadHandler(
     filename = function() paste0("nube_palabras_", format(Sys.time(), "%Y%m%d_%H%M%S"), ".png"),
     content = function(file) {
-      if (!requireNamespace("ggwordcloud", quietly = TRUE))
-        stop("Falta el paquete ggwordcloud. Instálalo con install.packages('ggwordcloud').")
-      toks <- get_lexico_tokens(datos$words,
-        archivo    = input$lex_nube_archivo,
-        hablante   = input$lex_nube_hablante,
-        forma      = input$lex_nube_forma,
-        excluir_sw = isTRUE(input$lex_nube_stopwords))
-      validate(need(length(toks) > 0, "No hay palabras para la nube en la selección actual."))
-      fr  <- sort(table(toks), decreasing = TRUE)
-      top <- min(as.integer(input$lex_nube_top), length(fr))
-      df_wc <- data.frame(word = names(fr)[seq_len(top)],
-                          freq = as.integer(fr)[seq_len(top)],
-                          stringsAsFactors = FALSE)
-      # gridtext (geom_text_wordcloud) interpreta <, >, & como marcado: descartarlos.
-      df_wc <- df_wc[!grepl("[<>&]", df_wc$word), , drop = FALSE]
-      validate(need(nrow(df_wc) > 0, "No hay palabras válidas para la nube."))
-      set.seed(42)
-      pal <- rep(c("#0C447C","#2563eb","#1D9E75","#378ADD","#BA7517"),
-                 length.out = nrow(df_wc))
-      p <- ggplot2::ggplot(df_wc,
-             ggplot2::aes(label = word, size = freq,
-                          color = factor(seq_len(nrow(df_wc))))) +
-        ggwordcloud::geom_text_wordcloud(rm_outside = TRUE) +
-        ggplot2::scale_size_area(max_size = 24) +
-        ggplot2::scale_color_manual(values = pal, guide = "none") +
-        ggplot2::theme_minimal()
-      ggplot2::ggsave(file, plot = p, width = 10, height = 7, dpi = 300, bg = "white")
+      # Escribe SIEMPRE un PNG válido. Si algo falla (falta de paquete, sin
+      # palabras, error de render), el propio PNG muestra el motivo en vez de
+      # dejar una descarga rota con un "error" genérico del navegador.
+      fail_png <- function(msg) {
+        grDevices::png(file, width = 1200, height = 800, res = 150, bg = "white")
+        on.exit(grDevices::dev.off(), add = TRUE)
+        op <- graphics::par(mar = c(0, 0, 0, 0)); on.exit(graphics::par(op), add = TRUE)
+        graphics::plot.new()
+        graphics::text(0.5, 0.5, msg, cex = 1.2, col = "#b00020")
+      }
+      tryCatch({
+        toks <- get_lexico_tokens(datos$words,
+          archivo    = input$lex_nube_archivo,
+          hablante   = input$lex_nube_hablante,
+          forma      = input$lex_nube_forma,
+          excluir_sw = isTRUE(input$lex_nube_stopwords))
+        if (!length(toks)) {
+          fail_png("No hay palabras para la nube en la selección actual.")
+          return(invisible())
+        }
+        fr  <- sort(table(toks), decreasing = TRUE)
+        top <- min(as.integer(input$lex_nube_top), length(fr))
+        df_wc <- data.frame(word = names(fr)[seq_len(top)],
+                            freq = as.integer(fr)[seq_len(top)],
+                            stringsAsFactors = FALSE)
+        # <, >, & pueden romper el render de texto: descartarlos.
+        df_wc <- df_wc[!grepl("[<>&]", df_wc$word), , drop = FALSE]
+        if (!nrow(df_wc)) {
+          fail_png("No hay palabras válidas para la nube.")
+          return(invisible())
+        }
+        set.seed(42)
+        pal <- rep(c("#0C447C","#2563eb","#1D9E75","#378ADD","#BA7517"),
+                   length.out = nrow(df_wc))
+        if (requireNamespace("ggwordcloud", quietly = TRUE)) {
+          p <- ggplot2::ggplot(df_wc,
+                 ggplot2::aes(label = word, size = freq,
+                              color = factor(seq_len(nrow(df_wc))))) +
+            ggwordcloud::geom_text_wordcloud(rm_outside = TRUE) +
+            ggplot2::scale_size_area(max_size = 24) +
+            ggplot2::scale_color_manual(values = pal, guide = "none") +
+            ggplot2::theme_minimal()
+          ggplot2::ggsave(file, plot = p, width = 10, height = 7, dpi = 300, bg = "white")
+        } else if (requireNamespace("wordcloud", quietly = TRUE)) {
+          # Alternativa si no está ggwordcloud: paquete clásico 'wordcloud'.
+          grDevices::png(file, width = 3000, height = 2100, res = 300, bg = "white")
+          on.exit(grDevices::dev.off(), add = TRUE)
+          wordcloud::wordcloud(df_wc$word, df_wc$freq, scale = c(6, 0.6),
+                               random.order = FALSE, rot.per = 0, colors = pal)
+        } else {
+          fail_png(paste0("Falta el paquete 'ggwordcloud' (o 'wordcloud').\n",
+                          "Instálalo con install.packages('ggwordcloud')."))
+        }
+      }, error = function(e) {
+        fail_png(paste0("No se pudo generar la nube:\n", conditionMessage(e)))
+      })
     }
   )
 
