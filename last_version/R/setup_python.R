@@ -59,7 +59,6 @@ oralstats_choose_python <- function() {
   asr  = c("whisperx", "pyannote.audio")
 )
 
-<<<<<<< HEAD
 # Nombre del módulo de import (Python) para cada paquete pip. Se usa para
 # verificar, tras instalar, que el paquete realmente se puede importar.
 .oralstats_import <- c(
@@ -72,8 +71,6 @@ oralstats_choose_python <- function() {
   "pyannote.audio"    = "pyannote.audio"
 )
 
-=======
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
 oralstats_bootstrap <- function(level = "core") {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
     stop("Falta el paquete R 'reticulate' (lo instala ensure_r_packages.R).")
@@ -106,7 +103,6 @@ oralstats_bootstrap <- function(level = "core") {
   )
 
   system2(pybin, c("-m", "pip", "install", "--upgrade", "pip"))
-<<<<<<< HEAD
 
   # Instalar paquete a paquete (NO en bloque). Si pip no puede resolver uno
   # —p.ej. conflicto de versiones de torch entre pysentimiento y funasr— los
@@ -139,14 +135,6 @@ oralstats_bootstrap <- function(level = "core") {
     warning("No se pudieron instalar/importar: ", paste(fallos, collapse = ", "))
   } else {
     message("ORALSTATS_PIP_OK")
-=======
-  for (lv in niveles) {
-    pp <- .oralstats_pip[[lv]]
-    message("pip [", lv, "]: ", paste(pp, collapse = ", "))
-    st <- tryCatch(system2(pybin, c("-m", "pip", "install", pp)),
-                   error = function(e) 1L)
-    if (!identical(st, 0L)) warning("Algún paquete del nivel '", lv, "' no se instaló.")
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
   }
   invisible(pybin)
 }
