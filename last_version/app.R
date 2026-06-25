@@ -4941,7 +4941,6 @@ server <- function(input, output, session) {
   }, ignoreNULL = TRUE)
 
   # Estado de la instalación de niveles Python (para el modal de progreso en vivo).
-<<<<<<< HEAD
   rv_inst <- reactiveValues(running = FALSE, logfile = NULL, level = "", tail = "", fallos = "")
 
   # Muestra un modal de forma robusta. En Bootstrap 5 (bslib), llamar a
@@ -4954,9 +4953,6 @@ server <- function(input, output, session) {
     removeModal()
     shinyjs::delay(delay_ms, showModal(modal))
   }
-=======
-  rv_inst <- reactiveValues(running = FALSE, logfile = NULL, level = "", tail = "")
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
 
   lanzar_instalacion <- function(nivel) {
     rscript <- file.path(R.home("bin"), if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript")
@@ -4966,14 +4962,9 @@ server <- function(input, output, session) {
     rv_inst$logfile <- logf
     rv_inst$level   <- nivel
     rv_inst$tail    <- "Iniciando instalación…"
-<<<<<<< HEAD
     rv_inst$fallos  <- ""
     rv_inst$running <- TRUE
     mostrar_modal_seguro(modalDialog(
-=======
-    rv_inst$running <- TRUE
-    showModal(modalDialog(
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
       title = tagList(icon("download"), paste0(" Instalando nivel '", nivel, "'")),
       tags$style(HTML(
         "#oralstats_install_log { background-color:#1e1e1e !important; color:#e6e6e6 !important;
@@ -4991,7 +4982,6 @@ server <- function(input, output, session) {
   observeEvent(input$btn_instalar_nivel3, lanzar_instalacion("asr"))
   observeEvent(input$oralstats_install_cerrar, removeModal())
 
-<<<<<<< HEAD
   # Modal reutilizable cuando falta una dependencia Python: ofrece instalarla
   # desde la app (un botón), en lugar de mandar al usuario al terminal con pip.
   rv_dep_nivel <- reactiveVal("text")
@@ -5015,8 +5005,6 @@ server <- function(input, output, session) {
     lanzar_instalacion(nivel)   # ya cierra el modal actual y abre el de progreso
   })
 
-=======
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
   # Poller: mientras instala, leer el log en vivo y detectar el final.
   observe({
     if (!isTRUE(rv_inst$running)) return()
@@ -5027,7 +5015,6 @@ server <- function(input, output, session) {
     rv_inst$tail <- paste(utils::tail(lns, 40), collapse = "\n")
     if (any(grepl("ORALSTATS_BOOTSTRAP_DONE", lns, fixed = TRUE))) {
       rv_inst$running <- FALSE
-<<<<<<< HEAD
       # Detectar fallos parciales reportados por setup_python.R (p.ej. funasr).
       fallo_line <- grep("ORALSTATS_PIP_FALLOS:", lns, value = TRUE, fixed = TRUE)
       if (length(fallo_line)) {
@@ -5042,10 +5029,6 @@ server <- function(input, output, session) {
         rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ✅ COMPLETADO ===")
         showNotification("Instalación finalizada.", type = "message", duration = 8)
       }
-=======
-      rv_inst$tail <- paste0(rv_inst$tail, "\n\n=== ✅ COMPLETADO ===")
-      showNotification("Instalación finalizada.", type = "message", duration = 8)
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
       isolate({ rv_diagnostico(run_diagnostico()) })   # refresca el diagnóstico
     }
   })
@@ -5055,14 +5038,11 @@ server <- function(input, output, session) {
       tags$div(class = "text-muted", style = "font-size:0.85em; margin-top:8px;",
                tags$span(class = "spinner-border spinner-border-sm", role = "status"),
                " Instalando… (no cierres la app)")
-<<<<<<< HEAD
     } else if (nzchar(rv_inst$fallos)) {
       tags$div(class = "text-danger", style = "font-weight:600; margin-top:8px;",
                icon("exclamation-triangle"),
                paste0(" Finalizado, pero no se instalaron: ", rv_inst$fallos,
                       ". Cierra y vuelve a pulsar el botón para reintentar."))
-=======
->>>>>>> c38c81c1afbcc5a69a1dde211e96b7401b068abc
     } else {
       tags$div(class = "text-success", style = "font-weight:600; margin-top:8px;",
                icon("check-circle"), " Instalación finalizada. Pulsa 'Cerrar'.")
