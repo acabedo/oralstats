@@ -87,7 +87,7 @@ oralstats_choose_python <- function() {
   host <- .norm_arch(Sys.info()[["machine"]])
   ov <- Sys.getenv("ORALSTATS_PYTHON", "")
   if (nzchar(ov) && file.exists(ov) && .oralstats_py_compatible(.oralstats_py_version(ov))) return(ov)
-  cand  <- c("python3.12", "python3.11", "python3.10", "python3.9", "python3", "python")
+  cand  <- c("python3.12", "python3.11", "python3.10", "python3", "python")
   paths <- unique(Filter(nzchar, vapply(cand, function(n) unname(Sys.which(n)), character(1))))
   compat <- Filter(function(p) .oralstats_py_compatible(.oralstats_py_version(p)), paths)
   native <- Filter(function(p) identical(.oralstats_py_arch(p), host), compat)
@@ -203,9 +203,13 @@ oralstats_bootstrap <- function(level = "core") {
 #' @export
 oralstats_python_available <- function(modules = NULL) {
   if (!requireNamespace("reticulate", quietly = TRUE)) return(FALSE)
-  py <- tryCatch(oralstats_python(), error = function(e) NA_character_)
-  if (is.na(py) || !nzchar(py) || !file.exists(py)) return(FALSE)
+  venv_ok <- isTRUE(tryCatch(reticulate::virtualenv_exists(ORALSTATS_VENV),
+                             error = function(e) FALSE))
+  if (!venv_ok) return(FALSE)
   if (is.null(modules)) return(TRUE)
+  py <- tryCatch(reticulate::virtualenv_python(ORALSTATS_VENV),
+                 error = function(e) NA_character_)
+  if (is.na(py) || !nzchar(py) || !file.exists(py)) return(FALSE)
   all(vapply(modules, function(m) {
     identical(suppressWarnings(system2(py, c("-c", shQuote(paste0("import ", m))),
                                        stdout = FALSE, stderr = FALSE)), 0L)
