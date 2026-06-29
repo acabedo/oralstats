@@ -4876,7 +4876,6 @@ h5(icon("upload"), " O importar manualmente"),
 # SERVIDOR
 # ========================================
 server <- function(input, output, session) {
-  options(shiny.maxRequestSize = 1000*1024^2)
 
   # ── Intérprete Python del proyecto (reticulate) con fallback ────────────────
   # oralstats_python() (R/portability.R) prioriza el venv del proyecto
@@ -5806,8 +5805,8 @@ dir.create(lasp_val_jueces,       recursive = TRUE, showWarnings = FALSE)
   # AUTO-SAVE: guardar automáticamente tras cada modificación
   # ========================================
   # ── Caché local de análisis recientes ──────────────────────────────────────
-  # Guardado en home (~/.oralstats_recientes.rds), FUERA de iCloud,
-  # para que el arranque sea instantáneo sin escanear directorios remotos.
+  # Guardado en la carpeta de datos del usuario (oralstats_data_dir()), FUERA de
+  # iCloud, para que el arranque sea instantáneo sin escanear directorios remotos.
   cache_recientes_path <- file.path(oralstats_data_dir(), ".oralstats_recientes.rds")
 
   actualizar_cache_recientes <- function(nombre, ruta, n_ips = 0L) {
@@ -9313,7 +9312,7 @@ rds_files <- grep("\\.meta\\.rds$",
       # ── Buscar script ─────────────────────────────────────────────────────
       script_name <- file.path("python", "analyze_sentiment_emotion.py")
       script_path <- NULL
-      search_paths <- system.file(script_name, package = "oralstats")
+      search_paths <- system.file("python", "analyze_sentiment_emotion.py", package = "oralstats")
       app_dir <- tryCatch(dirname(rstudioapi::getSourceEditorContext()$path), error = function(e) NULL)
       if (!is.null(app_dir)) search_paths <- c(file.path(app_dir, script_name), search_paths)
       for (sp in search_paths) {
@@ -9858,7 +9857,7 @@ observe({
 
       script_name <- file.path("python", "analyze_sentiment_emotion.py")
       script_path <- NULL
-      for (sp in system.file(script_name, package = "oralstats")) {
+      for (sp in system.file("python", "analyze_sentiment_emotion.py", package = "oralstats")) {
         if (!is.null(sp) && file.exists(sp)) { script_path <- normalizePath(sp); break }
       }
       if (is.null(script_path)) {
