@@ -11,6 +11,8 @@ Description: Aplicación Shiny (Oralstats v1.8 "LASP") para explorar y visualiza
     análisis acústico y de sentimiento/emoción en Python es opcional y se
     instala con install_oralstats_python().
 License: GPL-3
+URL: https://github.com/acabedo/oralstats
+BugReports: https://github.com/acabedo/oralstats/issues
 Encoding: UTF-8
 Imports:
     shiny,

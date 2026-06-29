@@ -36,11 +36,12 @@ oralstats_subdir <- function(name) {
 #' }
 #' @export
 run_app <- function(...) {
-  options(shiny.maxRequestSize = 2048 * 1024^2)
+  old <- options(shiny.maxRequestSize = 2048 * 1024^2)
+  on.exit(options(old), add = TRUE)
   oralstats_data_dir()
   app_dir <- system.file("app", package = "oralstats")
   if (!nzchar(app_dir)) {
     stop("No se encuentra la carpeta 'app' del paquete oralstats; reinstala el paquete.")
   }
-  shiny::runApp(app_dir, ...)
+  invisible(shiny::runApp(app_dir, ...))
 }
