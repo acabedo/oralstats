@@ -1,0 +1,40 @@
+Package: oralstats
+Type: Package
+Title: Exploración y Visualización de Habla Transcrita con Análisis Prosódico
+Version: 0.1.0
+Authors@R: person("Adrián", "Cabedo", role = c("aut", "cre"),
+                  email = "cabedoadrian@gmail.com")
+Description: Aplicación Shiny (Oralstats v1.8 "LASP") para explorar y visualizar
+    habla transcrita unida a datos de F0 e intensidad: resumen de corpus,
+    navegación de grupos entonativos, análisis léxico, modelos GAMM y un
+    generador de informes prosódicos. Se lanza con run_app(). El pipeline de
+    análisis acústico y de sentimiento/emoción en Python es opcional y se
+    instala con install_oralstats_python().
+License: GPL-3
+Encoding: UTF-8
+Imports:
+    shiny,
+    bslib,
+    DT,
+    data.table,
+    dplyr,
+    tidyr,
+    ggplot2,
+    ggeffects,
+    ggfun,
+    plotly,
+    mgcv,
+    seewave,
+    tuneR,
+    udpipe,
+    av,
+    RColorBrewer,
+    jsonlite,
+    shinyjs,
+    tools
+Suggests:
+    reticulate,
+    testthat (>= 3.0.0)
+SystemRequirements: Python (>= 3.10) para el pipeline opcional; ffmpeg (opcional); Praat (opcional)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
