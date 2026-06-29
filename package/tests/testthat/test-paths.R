@@ -6,4 +6,5 @@ test_that("app.R no escribe en getwd(): no quedan file.path(getwd(), ...) de per
 
 test_that("la app localiza el script Python por system.file", {
   expect_true(nzchar(system.file("python", "extract_with_parselmouth.py", package = "oralstats")))
+  expect_true(nzchar(system.file("python", "analyze_sentiment_emotion.py", package = "oralstats")))
 })

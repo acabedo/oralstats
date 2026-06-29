@@ -5808,7 +5808,7 @@ dir.create(lasp_val_jueces,       recursive = TRUE, showWarnings = FALSE)
   # ── Caché local de análisis recientes ──────────────────────────────────────
   # Guardado en home (~/.oralstats_recientes.rds), FUERA de iCloud,
   # para que el arranque sea instantáneo sin escanear directorios remotos.
-  cache_recientes_path <- file.path(Sys.getenv("HOME"), ".oralstats_recientes.rds")
+  cache_recientes_path <- file.path(oralstats_data_dir(), ".oralstats_recientes.rds")
 
   actualizar_cache_recientes <- function(nombre, ruta, n_ips = 0L) {
     tryCatch({
