@@ -5734,7 +5734,7 @@ server <- function(input, output, session) {
   # ========================================
   
   # Directorios persistentes dentro del directorio de la app
-  lasp_base <- file.path(getwd(), "lasp_datos")
+  lasp_base <- oralstats_subdir("lasp_datos")
   lasp_analisis <- file.path(lasp_base, "analisis")
   lasp_audios <- file.path(lasp_base, "audios")
   lasp_textgrids <- file.path(lasp_base, "textgrids")
@@ -9313,7 +9313,7 @@ rds_files <- grep("\\.meta\\.rds$",
       # ── Buscar script ─────────────────────────────────────────────────────
       script_name <- file.path("python", "analyze_sentiment_emotion.py")
       script_path <- NULL
-      search_paths <- c(file.path(getwd(), script_name), file.path(".", script_name))
+      search_paths <- system.file(script_name, package = "oralstats")
       app_dir <- tryCatch(dirname(rstudioapi::getSourceEditorContext()$path), error = function(e) NULL)
       if (!is.null(app_dir)) search_paths <- c(file.path(app_dir, script_name), search_paths)
       for (sp in search_paths) {
@@ -9858,7 +9858,7 @@ observe({
 
       script_name <- file.path("python", "analyze_sentiment_emotion.py")
       script_path <- NULL
-      for (sp in c(file.path(getwd(), script_name), file.path(".", script_name))) {
+      for (sp in system.file(script_name, package = "oralstats")) {
         if (!is.null(sp) && file.exists(sp)) { script_path <- normalizePath(sp); break }
       }
       if (is.null(script_path)) {
@@ -16005,7 +16005,7 @@ computar_clausulas <- function(umbral_pct = NULL, umbral_dif_st = NULL,
         incProgress(0.2, detail = paste0("Procesando ", length(comunes), " par(es)..."))
 
         # Buscar script Python
-        script_path <- file.path(getwd(), "python", "extract_with_parselmouth.py")
+        script_path <- system.file("python", "extract_with_parselmouth.py", package = "oralstats")
         if (!file.exists(script_path)) {
           # Intentar en directorio de la app
           possible_dirs <- c(
@@ -17129,7 +17129,7 @@ computar_clausulas <- function(umbral_pct = NULL, umbral_dif_st = NULL,
     
     # Crear directorio de backup
     if (is.null(etiq$backup_dir)) {
-      etiq$backup_dir <- file.path(getwd(), "backup_etiquetado")
+      etiq$backup_dir <- oralstats_subdir("backup_etiquetado")
       dir.create(etiq$backup_dir, recursive = TRUE, showWarnings = FALSE)
     }
     
@@ -17911,7 +17911,7 @@ emo_norm <- if (!is.na(audio_norm_map[emo_raw])) audio_norm_map[emo_raw] else
     }
     
     # Crear carpeta de salida
-    out_dir <- file.path(getwd(), "audios_emocion")
+    out_dir <- oralstats_subdir("audios_emocion")
     dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
     
     withProgress(message = "Exportando audios...", value = 0, {
@@ -18153,7 +18153,7 @@ emo_norm <- if (!is.na(audio_norm_map[emo_raw])) audio_norm_map[emo_raw] else
     wav_path <- buscar_wav(fn)
     tg_path  <- buscar_tg(fn)
 
-    out_dir <- file.path(getwd(), "audios_emocion")
+    out_dir <- oralstats_subdir("audios_emocion")
     dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
     nombre_base <- paste0(emocion, "_acto", acto_id)
@@ -19992,7 +19992,7 @@ observeEvent(input$cons_cargar_desde_carpeta, {
     }
     
     withProgress(message = "Generando informe...", value = 0, {
-      inf_dir <- file.path(getwd(), "informes")
+      inf_dir <- oralstats_subdir("informes")
       dir.create(inf_dir, recursive = TRUE, showWarnings = FALSE)
       timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
       graf_dir <- file.path(inf_dir, paste0("graficos_", timestamp))
@@ -26172,7 +26172,7 @@ print("DIARJSON:" + json.dumps(segs))
     invalidateLater(10000, session)
     req(varlab$anotaciones)
     if (is.null(varlab$backup_dir)) {
-      varlab$backup_dir <- file.path(getwd(), "backup_varcustom")
+      varlab$backup_dir <- oralstats_subdir("backup_varcustom")
       dir.create(varlab$backup_dir, recursive = TRUE, showWarnings = FALSE)
     }
     ts    <- format(Sys.time(), "%Y%m%d_%H%M%S")
