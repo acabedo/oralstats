@@ -10,13 +10,13 @@ install_oralstats_python(level = c("core", "text", "asr", "all"))
 \item{level}{Uno de "core", "text", "asr", "all".}
 }
 \value{
-Invisible: ruta al intérprete Python del entorno.
+Invisible: ruta al interprete Python del entorno.
 }
 \description{
 Crea el virtualenv 'oralstats-env' con reticulate e instala las dependencias
-Python por niveles. Es una operación opcional y potencialmente larga (el
-nivel 'asr'/'text' descarga varios GB). Llámala una sola vez antes de usar
-las funciones acústicas/de emoción de la app.
+Python por niveles. Es una operacion opcional y potencialmente larga (el
+nivel 'asr'/'text' descarga varios GB). Llamala una sola vez antes de usar
+las funciones acusticas/de emocion de la app.
 }
 \examples{
 \dontrun{

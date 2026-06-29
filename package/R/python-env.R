@@ -1,7 +1,7 @@
-# Lógica del entorno Python opcional de oralstats.
+# Logica del entorno Python opcional de oralstats.
 #
 # Constante: ORALSTATS_VENV
-# Funciones públicas: oralstats_python_available(), install_oralstats_python()
+# Funciones publicas: oralstats_python_available(), install_oralstats_python()
 # Funciones internas: oralstats_python(), oralstats_choose_python(),
 #   oralstats_bootstrap(), y los helpers dotados (.norm_arch, etc.)
 
@@ -43,7 +43,7 @@ oralstats_python <- function() {
   NA_character_
 }
 
-# ── Selección de Python (versión 3.10-3.12 y arquitectura nativa) ──────────────
+# -- Seleccion de Python (version 3.10-3.12 y arquitectura nativa) --------------
 
 #' @keywords internal
 #' @noRd
@@ -67,7 +67,7 @@ oralstats_python <- function() {
 #' @keywords internal
 #' @noRd
 .oralstats_py_compatible <- function(v) {
-  # Mínimo 3.10: spacy/thinc (vía pysentimiento) ya NO soportan Python 3.9.
+  # Minimo 3.10: spacy/thinc (via pysentimiento) ya NO soportan Python 3.9.
   if (is.null(v)) return(FALSE)
   (v[1] > 3 || (v[1] == 3 && v[2] >= 10)) && (v[1] < 3 || (v[1] == 3 && v[2] <= 12))
 }
@@ -96,7 +96,7 @@ oralstats_choose_python <- function() {
   NA_character_
 }
 
-# ── Paquetes pip por nivel ────────────────────────────────────────────────────
+# -- Paquetes pip por nivel ----------------------------------------------------
 
 #' @keywords internal
 #' @noRd
@@ -106,7 +106,7 @@ oralstats_choose_python <- function() {
   asr  = c("whisperx", "pyannote.audio")
 )
 
-# Nombre del módulo de import (Python) para cada paquete pip. Se usa para
+# Nombre del modulo de import (Python) para cada paquete pip. Se usa para
 # verificar, tras instalar, que el paquete realmente se puede importar.
 #' @keywords internal
 #' @noRd
@@ -124,22 +124,22 @@ oralstats_choose_python <- function() {
 #' @noRd
 oralstats_bootstrap <- function(level = "core") {
   if (!requireNamespace("reticulate", quietly = TRUE)) {
-    stop("Falta el paquete R 'reticulate'. Instálalo con install.packages('reticulate').")
+    stop("Falta el paquete R 'reticulate'. Instalalo con install.packages('reticulate').")
   }
 
   # Crear el virtualenv si no existe.
   if (!isTRUE(tryCatch(reticulate::virtualenv_exists(ORALSTATS_VENV), error = function(e) FALSE))) {
     py <- oralstats_choose_python()
     if (is.na(py)) {
-      message("No hay Python 3.10-3.12 en el sistema. Instalando uno con reticulate (binario)…")
+      message("No hay Python 3.10-3.12 en el sistema. Instalando uno con reticulate (binario)...")
       py <- tryCatch(reticulate::install_python(version = "3.11:latest"),
-                     error = function(e) { message("Aviso: install_python falló: ", conditionMessage(e)); NA_character_ })
+                     error = function(e) { message("Aviso: install_python fallo: ", conditionMessage(e)); NA_character_ })
     }
     if (is.na(py)) {
       warning("No se pudo preparar Python. Instala Python 3.11 (python.org) o miniforge y reintenta.")
       return(invisible(NA_character_))
     }
-    message("Creando entorno virtual '", ORALSTATS_VENV, "' (Python: ", py, ")…")
+    message("Creando entorno virtual '", ORALSTATS_VENV, "' (Python: ", py, ")...")
     reticulate::virtualenv_create(ORALSTATS_VENV, python = py)
   }
 
@@ -156,19 +156,19 @@ oralstats_bootstrap <- function(level = "core") {
   system2(pybin, c("-m", "pip", "install", "--upgrade", "pip"))
 
   # Instalar paquete a paquete (NO en bloque). Si pip no puede resolver uno
-  # —p.ej. conflicto de versiones de torch entre pysentimiento y funasr— los
-  # demás se instalan igualmente. Instalar en bloque hacía que un fallo dejara
+  # --p.ej. conflicto de versiones de torch entre pysentimiento y funasr-- los
+  # demas se instalan igualmente. Instalar en bloque hacia que un fallo dejara
   # fuera a funasr/soundfile sin avisar.
   pkgs <- unique(unlist(.oralstats_pip[niveles], use.names = FALSE))
   for (pkg in pkgs) {
     message(">>> pip install: ", pkg)
     tryCatch(system2(pybin, c("-m", "pip", "install", "--upgrade", pkg)),
-             error = function(e) message("  (excepción al instalar ", pkg, ": ",
+             error = function(e) message("  (excepcion al instalar ", pkg, ": ",
                                          conditionMessage(e), ")"))
   }
 
-  # Verificación final: importar cada paquete dentro del propio venv. Detecta
-  # tanto fallos de instalación como conflictos que rompen un paquete ya puesto.
+  # Verificacion final: importar cada paquete dentro del propio venv. Detecta
+  # tanto fallos de instalacion como conflictos que rompen un paquete ya puesto.
   message("\n=== Verificando importaciones en el entorno ===")
   fallos <- character(0)
   for (pkg in pkgs) {
@@ -190,14 +190,14 @@ oralstats_bootstrap <- function(level = "core") {
   invisible(pybin)
 }
 
-# ── Funciones públicas ────────────────────────────────────────────────────────
+# -- Funciones publicas --------------------------------------------------------
 
-#' Comprobar si el entorno Python de oralstats está disponible
+#' Comprobar si el entorno Python de oralstats esta disponible
 #'
 #' Devuelve TRUE si existe el virtualenv del proyecto y, opcionalmente, si los
-#' módulos indicados se pueden importar. Nunca lanza error: si reticulate o el
-#' venv no están, devuelve FALSE para permitir degradación elegante en la app.
-#' @param modules Vector de nombres de módulos Python a verificar (p. ej.
+#' modulos indicados se pueden importar. Nunca lanza error: si reticulate o el
+#' venv no estan, devuelve FALSE para permitir degradacion elegante en la app.
+#' @param modules Vector de nombres de modulos Python a verificar (p. ej.
 #'   c("parselmouth")). Si NULL, solo comprueba que el venv exista.
 #' @return TRUE/FALSE.
 #' @export
@@ -219,11 +219,11 @@ oralstats_python_available <- function(modules = NULL) {
 #' Instalar el entorno Python de oralstats (opcional)
 #'
 #' Crea el virtualenv 'oralstats-env' con reticulate e instala las dependencias
-#' Python por niveles. Es una operación opcional y potencialmente larga (el
-#' nivel 'asr'/'text' descarga varios GB). Llámala una sola vez antes de usar
-#' las funciones acústicas/de emoción de la app.
+#' Python por niveles. Es una operacion opcional y potencialmente larga (el
+#' nivel 'asr'/'text' descarga varios GB). Llamala una sola vez antes de usar
+#' las funciones acusticas/de emocion de la app.
 #' @param level Uno de "core", "text", "asr", "all".
-#' @return Invisible: ruta al intérprete Python del entorno.
+#' @return Invisible: ruta al interprete Python del entorno.
 #' @examples
 #' \dontrun{
 #' oralstats::install_oralstats_python("core")

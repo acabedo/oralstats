@@ -1,4 +1,4 @@
-# Detección de dependencias de sistema externas (Praat, ffmpeg, pandoc, Chrome).
+# Deteccion de dependencias de sistema externas (Praat, ffmpeg, pandoc, Chrome).
 
 #' Detecta binarios de sistema externos que OralStats puede usar.
 #'
@@ -36,7 +36,7 @@ check_system_deps <- function() {
 
   hints <- list(
     praat = c(macos = "brew install --cask praat  (o praat.org)",
-              windows = "Descarga Praat.exe de praat.org y añádelo al PATH",
+              windows = "Descarga Praat.exe de praat.org y anadelo al PATH",
               linux = "sudo apt install praat  (o praat.org)"),
     ffmpeg = c(macos = "brew install ffmpeg",
                windows = "choco install ffmpeg  (o ffmpeg.org)",
