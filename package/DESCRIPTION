@@ -34,10 +34,32 @@ Imports:
     RColorBrewer,
     jsonlite,
     shinyjs,
+    waiter,
+    wordcloud2,
+    rPraat,
+    wrassp,
+    reshape2,
+    rmarkdown,
+    processx,
+    webshot2,
+    remotes,
     tools
 Suggests:
     reticulate,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    irr,
+    randomForest,
+    partykit,
+    ggparty,
+    readxl,
+    stopwords,
+    praatpicture,
+    pagedown,
+    ggwordcloud,
+    wordcloud,
+    httr,
+    base64enc,
+    rstudioapi
 SystemRequirements: Python (>= 3.10) para el pipeline opcional; ffmpeg (opcional); Praat (opcional)
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

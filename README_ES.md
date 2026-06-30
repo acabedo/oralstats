@@ -88,7 +88,7 @@ Variables de entorno útiles (opcionales, sobre todo para la Opción B):
 
 **Paquetes de R (v1.8)** — instalados automáticamente por cualquiera de las dos opciones:
 
-> av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite; mgcv; plotly; RColorBrewer; reticulate; seewave; shiny; shinyjs; tidyr; tuneR; udpipe
+> av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite; mgcv; plotly; RColorBrewer; reticulate; seewave; shiny; shinyjs; tidyr; tuneR; udpipe; waiter; wordcloud2; rPraat; wrassp; reshape2; rmarkdown; processx; webshot2; remotes
 
 **Nota:** UDPipe necesita un archivo de modelo de lengua; por defecto se incluye uno de español, pero puedes usar cualquier otro que cubra tus necesidades.
 

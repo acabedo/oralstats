@@ -88,7 +88,7 @@ Useful overrides (optional environment variables, mainly for Option B):
 
 **R packages (v1.8)** — installed automatically by either option:
 
-> av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite; mgcv; plotly; RColorBrewer; reticulate; seewave; shiny; shinyjs; tidyr; tuneR; udpipe
+> av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite; mgcv; plotly; RColorBrewer; reticulate; seewave; shiny; shinyjs; tidyr; tuneR; udpipe; waiter; wordcloud2; rPraat; wrassp; reshape2; rmarkdown; processx; webshot2; remotes
 
 **Note:** UDPipe needs a language model file; a Spanish file ships by default, but you can use any other language file covering your needs.
 
