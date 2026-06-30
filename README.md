@@ -4,6 +4,8 @@
 
 # Oralstats v1.8 — LASP (Laboratorio de Análisis de la Señal Prosódica)
 
+**🌐 Language / Idioma:** 🇬🇧 **English** · [🇪🇸 Español](README_ES.md)
+
 Oralstats is a data-exploratory tool for transcribed speech: it joins transcriptions with pitch and intensity data and lets you **visualize, model and explore prosody** at discourse level. Version **1.8** is a complete modernization that keeps the original SQL/Shiny exploratory spirit but rebuilds the interface with `bslib` and delegates the heavy signal and language processing to a **Python pipeline** (Praat/Parselmouth extraction, UDPipe, `pysentimiento` and emotion2vec+). Everything is organized around a single top navigation bar, with a corpus summary (files, speakers, intonational groups, phonic groups, words, vowels) always one click away.
 
 Developed by Adrián Cabedo Nebot ([adrian.cabedo@uv.es](mailto:adrian.cabedo@uv.es)), associate professor at the Universitat de València (Spain).
@@ -14,9 +16,35 @@ Developed by Adrián Cabedo Nebot ([adrian.cabedo@uv.es](mailto:adrian.cabedo@uv
 
 # Installation
 
-The modernized version lives in [`last_version/`](last_version/) and is designed to install itself on first run. You only need **R** and an editor (**Positron** or **RStudio**); the launcher `run.R` takes care of R packages and the whole Python environment — **you never touch `pip` or `conda` yourself**.
+There are two ways to get Oralstats v1.8 running. **Option A** installs it as an R package in a single line and is the easiest way to try it. **Option B** runs the modernized app from source with a self-installing launcher.
 
-## Quick start (recommended)
+## Option A — Install as an R package (recommended)
+
+Install straight from GitHub; the required R packages are pulled in automatically:
+
+```r
+# install.packages("remotes")   # if you don't have it yet
+remotes::install_github("acabedo/oralstats", subdir = "package")
+
+# Launch the application
+oralstats::run_app()
+```
+
+No need to clone the repository or set a working directory. Your data —saved analyses, generated reports, backups and the audio you load— is stored in a standard per-user folder (`tools::R_user_dir("oralstats", "data")`), so nothing is ever written inside the installed package.
+
+**Optional Python pipeline.** The acoustic extraction (Parselmouth) and the sentiment/emotion tagging run on Python and are **optional**: the rest of Oralstats (corpus summary, intonation navigation, tables, lexical analysis and reports without acoustic emotion) works without them. Install the environment once, by levels, from R or from the app's **"Dependencias Python"** tab:
+
+```r
+oralstats::install_oralstats_python("core")   # praat-parselmouth, tgt (light)
+oralstats::install_oralstats_python("text")   # + sentiment/emotion (large download)
+oralstats::install_oralstats_python("asr")    # + transcription / diarization
+```
+
+If no suitable Python (3.10–3.12) is found, `reticulate` installs one automatically. The package never downloads anything from Python until you ask it to.
+
+## Option B — Run from source (self-installing launcher)
+
+The modernized version also lives in [`last_version/`](last_version/) and is designed to install itself on first run. You only need **R** and an editor (**Positron** or **RStudio**); the launcher `run.R` takes care of R packages and the whole Python environment — **you never touch `pip` or `conda` yourself**.
 
 1. Install **R** (<https://cran.r-project.org>) and **Positron** (<https://positron.posit.co>) or RStudio. Standard double-click installers.
 2. In your editor, open the **`last_version/`** folder as a project (`File > Open Folder…`). This folder contains `run.R` and `app.R`.
@@ -26,9 +54,9 @@ The modernized version lives in [`last_version/`](last_version/) and is designed
    ```
 4. **Wait.** The first run downloads and installs everything automatically (R packages, a Python virtual environment and the core acoustic dependencies). It can take several minutes; afterwards the app opens in your browser. Later launches are fast.
 
-You need an Internet connection on the first run. No manual Python/conda setup is required.
+Unlike Option A, `run.R` also **bootstraps the core Python tier automatically** on first launch. You need an Internet connection the first time. No manual Python/conda setup is required.
 
-## What `run.R` does
+### What `run.R` does
 
 `run.R` is a single launcher that reproduces the environment and starts the app:
 
@@ -38,27 +66,27 @@ You need an Internet connection on the first run. No manual Python/conda setup i
 
 ## Python dependencies (installed by levels)
 
-To keep startup light, the Python pipeline installs in tiers — only the core tier is installed at launch; the heavier ones are large downloads that you install **on demand** from the app's **"Dependencias Python"** tab:
+To keep startup light, the Python pipeline installs in tiers — both `install_oralstats_python()` (Option A) and `run.R` (Option B) use the same levels. Only the **core** tier is needed for acoustic extraction; the heavier ones are large downloads that you install **on demand** (from R or the app's **"Dependencias Python"** tab):
 
-| Level | Installed | Packages | Used for |
-|---|---|---|---|
-| **core** | at startup (`run.R`) | `praat-parselmouth`, `tgt` | pitch/intensity/text extraction |
-| **text** | on demand (tab, level 2) | `pysentimiento`, `funasr`, `soundfile` | textual sentiment + acoustic emotion (emotion2vec+) |
-| **asr** | on demand (tab, level 3) | `whisperx`, `pyannote.audio` | transcription / diarization |
+| Level | Packages | Used for |
+|---|---|---|
+| **core** | `praat-parselmouth`, `tgt` | pitch/intensity/text extraction |
+| **text** | `pysentimiento`, `funasr`, `soundfile` | textual sentiment + acoustic emotion (emotion2vec+) |
+| **asr** | `whisperx`, `pyannote.audio` | transcription / diarization |
 
-Useful overrides (optional environment variables):
+Useful overrides (optional environment variables, mainly for Option B):
 
 - `ORALSTATS_PY_LEVEL` — startup level for `run.R` (default `core`; e.g. set `text` to also install the sentiment/emotion tier at launch).
 - `ORALSTATS_PYTHON` — path to a specific Python 3.10–3.12 interpreter to use instead of the auto-detected one.
 
 ## Requirements
 
-- **R** ≥ 3.6 (a current version is recommended) and a modern browser (Chrome/Safari).
+- **R** ≥ 4.1 for Option A (the package); R ≥ 3.6 for Option B. A current version is recommended, plus a modern browser (Chrome/Safari).
 - **Positron** or **RStudio** 1.4.1717 or later.
-- **Python 3.10–3.12**, native architecture — auto-installed if not present.
+- **Python 3.10–3.12**, native architecture — only for the optional pipeline; auto-installed if not present.
 - Internet access on the first run.
 
-**R packages (v1.8)** — installed automatically by `run.R`:
+**R packages (v1.8)** — installed automatically by either option:
 
 > av; bslib; data.table; dplyr; DT; ggeffects; ggfun; ggplot2; jsonlite; mgcv; plotly; RColorBrewer; reticulate; seewave; shiny; shinyjs; tidyr; tuneR; udpipe
 
@@ -120,7 +148,7 @@ A guided **report generator** turns the corpus into a full prosodic report: choo
 
 ![Report generator — report sections (incl. GAMM)](images/last_version/15_generador_informes2.png)
 
-> **Files of the modernized version** live in [`last_version/`](last_version/): the Shiny app (`app.R`), the launcher (`run.R`), the Praat/Parselmouth extractors (`script_PRAAT_extraer_pitch_intensity_transcriptions.praat`, `python/extract_with_parselmouth.py`) and the sentiment/emotion analyzer (`python/analyze_sentiment_emotion.py`).
+> **Files of the modernized version** live in [`last_version/`](last_version/): the Shiny app (`app.R`), the launcher (`run.R`), the Praat/Parselmouth extractors (`script_PRAAT_extraer_pitch_intensity_transcriptions.praat`, `python/extract_with_parselmouth.py`) and the sentiment/emotion analyzer (`python/analyze_sentiment_emotion.py`). The installable package (Option A) lives in [`package/`](package/).
 
 # How to cite
 
